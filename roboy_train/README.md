@@ -43,7 +43,7 @@ in the call. This will make the training script load profilememory_convai2_model
 ## How To: Retrieve Data and Evaluate Training
 - to retrieve log files, do 
 ```
-gcloud compute scp --recurse team_roboy@ubuntu1604uswest1b:~/ParlAI/data/models/convai2/profilememory ~/Desktop
+gcloud compute scp --recurse team_roboy@ubuntu1604uswest1b:~/ss18_showmaster/ParlAI/data/models/convai2/profilememory ~/Desktop
 ```
 - locally, activate your virtual environment and start the iPython AnalysisNotebook and follow the process there
 - you might need to adapt names/directories
@@ -52,7 +52,7 @@ gcloud compute scp --recurse team_roboy@ubuntu1604uswest1b:~/ParlAI/data/models/
 ```
 gcloud compute scp --recurse team_roboy@ubuntu1604uswest1b:/tmp/ ~/Desktop
 ```
-- to interactively test them, do
+- to interactively test them, move them to data/models/convai2/profilememory and run
 ```
 python projects/convai2/baselines/profilememory/interactive.py 
 ```
