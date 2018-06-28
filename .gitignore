@@ -15,6 +15,7 @@ __pycache__/
 .vector_cache/
 env/
 build/
+data/
 data/models
 Data/ConvAI2/train_both_original_no_cands.txt
 Data/ConvAI2/train_both_original.txt
