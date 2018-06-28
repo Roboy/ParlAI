@@ -1,8 +1,9 @@
 #!/bin/bash
 # clear
 
-python3 train_roboy.py --dict-file models:convai2/profilememory/profilememory_convai2.dict -hs 1024 -emb 300 -nl 2 -lr 0.001 -dr 0.4 -tr -1 -dec same -opt adam -ltim 5 -vtim 360 -vme 1000 -vp 20 -vmt f1 -vmm max -vcut 1.0 -dbf True -stim 900 &>../data/models/convai2/profilememory/profilememory.txt
+python3 train_roboy.py -hs 1024 -emb 300 -nl 3 -lr 0.01 -dr 0.5 -tr -1 -dec same -opt adam -ltim 5 -vtim 360 -vme 1000 -vp 20 -vmt f1 -vmm max -vcut 1.0 -dbf True -stim 900 &>../data/models/convai2/profilememory/profilememory.txt
 
+# --dict-file models:convai2/profilememory/profilememory_convai2.dict
 ############################# Legend #############################
 ############################# Model #############################
 # Model
