@@ -23,7 +23,7 @@ if __name__ == '__main__':
         dict_include_valid=True,
         dict_maxexs=-1,
         datatype='train',
-        batchsize=32, # CUDA runs out of memory otherwise
+        batchsize=64, # CUDA runs out of memory otherwise
         encoder='lstm',
                         #learningrate=0.001,
                         #numlayers=2, #(default: 1)
