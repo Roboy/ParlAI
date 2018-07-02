@@ -4,7 +4,7 @@
 # clear tmp to prevent loading old runs
 rm -rf tmp/
 
-python3 train_roboy.py --dict-file models:convai2/profilememory/profilememory_convai2.dict -hs 1024 -emb 300 -nl 3 -bs 64 -lr 0.001 -dr 0.5 -tr -1 -dec same -opt adam -ltim 10 -vtim 600 -vme 1000 -vp 20 -vmt f1 -vmm max -vcut 1.0 -dbf True -stim 900 &>../data/models/convai2/profilememory/profilememory.txt
+python3 train_roboy.py --dict-file models:convai2/profilememory/profilememory_convai2.dict -hs 1024 -emb 300 -nl 2 -bs 64 -lr 0.001 -dr 0.5 -tr -1 -dec same -opt adam -ltim 10 -vtim 300 -vme 1000 -vp 20 -vmt f1 -vmm max -vcut 1.0 -dbf True -stim 900 &>../data/models/convai2/profilememory/log.txt
 
 #
 ############################# Legend #############################
