@@ -88,11 +88,11 @@ class Seq2seq(nn.Module):
             self.longest_label = max(self.longest_label, ys.size(1))
 
         if prev_enc is not None:
-            enc_out, hidden = prev_enc
+            enc_out, hidden, attn_mask = prev_enc
         else:
             enc_out, hidden = self.encoder(xs)
-        encoder_states = (enc_out, hidden)
-        attn_mask = xs.ne(0).float() if self.attn_type != 'none' else None
+            attn_mask = xs.ne(0).float() if self.attn_type != 'none' else None
+        encoder_states = (enc_out, hidden, attn_mask)
         start = self.START.detach()
         starts = start.expand(bsz, 1)
 
@@ -191,7 +191,7 @@ class Encoder(nn.Module):
             packed = True
         except ValueError:
             # packing failed, don't pack then
-            pass
+            packed = False
 
         encoder_output, hidden = self.rnn(xes)
         if packed:
