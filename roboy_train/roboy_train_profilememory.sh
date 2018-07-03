@@ -1,9 +1,12 @@
 #!/bin/bash
 # clear
 
-python3 train_roboy.py -hs 1024 -emb 300 -nl 3 -lr 0.01 -dr 0.5 -tr -1 -dec same -opt adam -ltim 5 -vtim 360 -vme 1000 -vp 20 -vmt f1 -vmm max -vcut 1.0 -dbf True -stim 900 &>../data/models/convai2/profilememory/profilememory.txt
+# clear tmp to prevent loading old runs
+rm -rf tmp/
 
-# --dict-file models:convai2/profilememory/profilememory_convai2.dict
+python3 train_roboy.py --model-file ~/ss18_showmaster/ParlAI/data/models/profilememory_convai2_model -hs 1024 -emb 300 -nl 2 -bs 64 -lr 0.001 -dr 0.4 -tr -1 -dec same -opt adam -ltim 15 -vtim 600 -vme 1000 -vp 50 -vmt f1 -vmm max -vcut 1.0 -dbf True -stim 900 &>../data/models/convai2/profilememory/logging/log.txt
+
+#--dict-file models:convai2/profilememory/profilememory_convai2.dict
 ############################# Legend #############################
 ############################# Model #############################
 # Model
