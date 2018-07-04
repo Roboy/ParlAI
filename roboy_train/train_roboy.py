@@ -25,27 +25,21 @@ if __name__ == '__main__':
         datatype='train',
         batchsize=64, # CUDA runs out of memory otherwise
         encoder='lstm',
-                        #learningrate=0.001,
-                        #numlayers=2, #(default: 1)
-                        #hiddensize=1024,
-                        #dropout=0.2,
+        learningrate=0.001,
+        numlayers=2,
+        hiddensize=1024,
+        dropout=0.2,
         attention='general',
         personachat_attnsentlevel=True,
         personachat_sharelt=True,
         personachat_learnreweight=True,
         personachat_reweight='use',
-        #truncate=100, # Truncate (default 100, -1 gives minimum length):
-        #'truncate input & output lengths to speed up '
-        # training (may reduce accuracy). This fixes all '
-        # input and output to have a maximum length and to '
-        # be similar in length to one another by throwing '
-        # away extra tokens. This reduces the total amount '
-        # of padding in the batches.'
+        truncate=100, # Truncate (default 100, -1 gives minimum length):
         rank_candidates=True,
-                        #validation_every_n_secs=300,
-        validation_metric='accuracy', #(default: f1)
-        validation_metric_mode='max',
-                        #validation_patience=10,
-        log_every_n_secs=5,
+        validation_every_n_secs=180,
+        validation_metric='ppl',     #or: f1 max or ppl min
+        validation_metric_mode='min',
+        validation_patience=10,
+        log_every_n_secs=10,
     )
     TrainLoop(parser.parse_args()).train()
