@@ -21,8 +21,8 @@ roslaunch rosbridge_server rosbridge_websocket.launch
 
 ### 2. Start Model
 - in a new terminal
-- activate virtual environment 
-- in `ss18_showmaster/DeepQA_ParlAI/ros_integration` run 
+- activate the python 36 environment you set up when preparing to work with ParlAI as described [here](https://github.com/Roboy/ParlAI/)
+- in `ss18_showmaster/ParlAI/ros_integration` run 
 ```
 python gnlp_ros_srv.py
 ```

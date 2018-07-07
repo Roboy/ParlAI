@@ -29,7 +29,7 @@ in the call. This will make the training script load profilememory_convai2_model
 - do: $ screen
 - activate virtual environment 
 ```
-~/venvParlAI36/bin/activate
+source ~/venvParlAI36/bin/activate
 ```
 - run shell script ./roboy_train_profilememory.sh from ss18_showmaster/DeepQA_ParlAI/train
 - log-file will be saved to path in shell script
@@ -55,6 +55,10 @@ gcloud compute scp --recurse team_roboy@ubuntu1604uswest1b:/tmp/ ~/Desktop
 - to interactively test them, move them to data/models/convai2/profilememory and run
 ```
 python projects/convai2/baselines/profilememory/interactive.py 
+```
+using the appropriate falgs such as
+```
+python projects/convai2/baselines/profilememory/interactive.py --model-file data/models/convai2/profilememory/180706_XXYY/roboy_profilemem --dict-file data/models/convai2/profilememory/180706_XXYY/roboy_profilemem.dict
 ```
 - shut down the computing engine after training, otherwise Roboy will still be charged. (currently ~$1.50/h)
 
