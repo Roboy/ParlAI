@@ -16,22 +16,23 @@ There are many many options and arguments, your best source to get an overview i
 in the call. This will make the training script load profilememory_convai2_model from /tmp/ (see [ParlAI Github Issue 823](https://github.com/facebookresearch/ParlAI/issues/823))
 
 ## How To: Set up training
-- go to shell script in ss18_showmaster/DeepQA_ParlAI/train
+- go to shell script in ss18_showmaster/ParlAI/projects/roboy/train/
 - set your hyper parameters
-- if batches are too large you will run into CUDA memory errors (-bs 32 works)
+- if batches are too large you will run into CUDA memory errors (-bs up to 128 works)
 - model trains very slow (training and validation accuracy ~0 for very long). Set validation metric to f1 to not have unintended stopping due to patience
 - push to git
 
 ## How To: Train
 - [Boot useastdeepqa VM instance on GCP](https://console.cloud.google.com/compute/ )
 - Click SSH to open new shell in browser (alternatively, install gcloud command line tools on local machine)
-- update ss18_showmaster git
+- go to ss18_showmaster and pull
+- go to ParlAI and pull
 - do: $ screen
 - activate virtual environment 
 ```
 source ~/venvParlAI36/bin/activate
 ```
-- run shell script ./roboy_train_profilememory.sh from ss18_showmaster/DeepQA_ParlAI/train
+- run shell script ./roboy_train_profilememory.sh from ss18_showmaster/ParlAI/projects/roboy/train/
 - log-file will be saved to path in shell script
 - model will be saved to /tmp/
 - Press Ctrl+a, Ctrl+d in quick sequence
