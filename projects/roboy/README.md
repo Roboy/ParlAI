@@ -6,7 +6,7 @@
 - jupyter (for analysis)
 - matplotlib (for analysis)
 - websockets (for ROS)
-- training requirements specified in according README
+- further training requirements specified at the end of the according [README](https://github.com/Roboy/ParlAI/tree/master/projects/roboy/train)
 
 ### Installing ParlAI
 
@@ -25,7 +25,7 @@ All needed data will be downloaded to ~/ParlAI/data, and any non-data files (suc
 
 ## Examples
 
-[ParlAI](https://github.com/facebookresearch/ParlAI/) (pronounced “par-lay”) is a framework for dialog AI research by Facebook, implemented in Python. See their website [http://parl.ai](http://parl.ai) for further docs
+[ParlAI](https://github.com/Roboy/ParlAI/) (pronounced “par-lay”) is a framework for dialog AI research by Facebook, implemented in Python. See their website [http://parl.ai](http://parl.ai) for further docs
 
 ParlAI is described in the following paper:
 [“ParlAI: A Dialog Research Software Platform", arXiv:1705.06476](https://arxiv.org/abs/1705.06476).
