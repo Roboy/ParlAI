@@ -1,7 +1,7 @@
 # Training
 
 ## Background ParlAI Training
-There are many many options and arguments, your best source to get an overview is the shell script ./roboy_train_profilememory.sh in ss18_showmaster/DeepQA/parlai or the according ParlAI functions
+There are many many options and arguments, your best source to get an overview is the shell script [./roboy_train_profilememory.sh](https://github.com/Roboy/ParlAI/blob/master/projects/roboy/train/roboy_train_profilememory.sh) or the according ParlAI functions
 ### Training Options
 - define a timeframe in which to train
 - define a number of epochs to train
