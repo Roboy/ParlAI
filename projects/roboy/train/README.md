@@ -90,7 +90,7 @@ python projects/convai2/baselines/profilememory/interactive.py --model-file data
 - us-west1-b
 - 8 vCPU
 - 52 GB memory (personachat data set needs >32GB RAM to work with torch)
-- 1 NVIDIA Tesla K80 (usable in us-west1-b)
+- 1 NVIDIA Tesla P100 (usable in us-west1-b)
 - Ubuntu 16.04 LTS
 - 50GB persistent storage 
 - if you require more [storage](https://cloud.google.com/compute/docs/disks/add-persistent-disk)
