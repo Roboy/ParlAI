@@ -19,8 +19,8 @@ in the call. This will make the training script load profilememory_convai2_model
 - go to shell script in ss18_showmaster/ParlAI/projects/roboy/train/
 - set your hyper parameters
 - if batches are too large you will run into CUDA memory errors (-bs up to 128 works)
-- model trains very slow (training and validation accuracy ~0 for very long). Set validation metric to f1 to not have unintended stopping due to patience
-- push to git
+- add, commit, push changes to ParlAI git
+- add, commit,push latest ParlAI to ss18_showmaster 
 
 ## How To: Train
 - [Boot useastdeepqa VM instance on GCP](https://console.cloud.google.com/compute/ )
