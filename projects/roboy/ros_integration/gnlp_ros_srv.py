@@ -38,7 +38,7 @@ async def service_callback():
                'dict_endtoken': '__END__', \
                'dict_unktoken': '__UNK__', 'dict_tokenizer': 'split', 'dict_lower': False, 'hiddensize': 1024, \
                'embeddingsize': 300, 'numlayers': 2, 'learningrate': 0.5, 'dropout': 0.1, 'bidirectional': False, \
-               'attention': general, 'no_cuda': False, 'gpu': -1, 'rank_candidates': False, 'truncate': 100,
+               'attention': 'general', 'no_cuda': False, 'gpu': -1, 'rank_candidates': False, 'truncate': 100,
                'encoder': 'lstm', \
                'decoder': 'same', 'optimizer': 'adam', 'personachat_useprevdialog': False,
                'personachat_printattn': False, \
