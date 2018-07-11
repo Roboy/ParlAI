@@ -32,9 +32,34 @@ python gnlp_ros_srv.py
 - get available services through running `rosservice list`
 - run 
 ```
-(catkin_ws)/devel/setup.bash
+source (catkin_ws)/devel/setup.bash
 ```
 with (catkin_ws) being the location of your catkin workspace such as `Documents/Roboy/catkin_ws`
 ```
 rosservice call /roboy/cognition/generative_nlp/answer "text_input: 'hello'"
 ```
+
+## ROS Communication 102
+How to fix stuff
+
+### 1. Edit IP adress in last line (local host: 127.0.0.1:11311)
+```
+gedit ~/.bashrc
+```
+### 2. Source it 
+```
+source ~/.bashrc
+```
+### 3. run bash
+```
+source Documents/Roboy/catkin_ws/devel/setup.bash
+```
+### 4. launch ROS service as in step 101.1
+```
+roslaunch rosbridge_server rosbridge_websocket.launch
+```
+### 5. Update IP adress in gnlp_ros_srv.py 
+
+
+
+
