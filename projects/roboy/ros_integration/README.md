@@ -42,7 +42,8 @@ rosservice call /roboy/cognition/generative_nlp/answer "text_input: 'hello'"
 ## ROS Communication 102
 How to fix stuff
 
-### 1. Edit IP adress in last line (local host: 127.0.0.1:11311)
+### 1. Edit IP adress in last line 
+- (local host: 127.0.0.1:11311)
 ```
 gedit ~/.bashrc
 ```
