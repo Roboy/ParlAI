@@ -20,7 +20,7 @@ if __name__ == '__main__':
         model='projects.personachat.persona_seq2seq:PersonachatSeqseqAgentSplit',
         model_file='/tmp/roboy_profilemem',
         dict_file='/tmp/roboy_profilemem.dict',
-        dict_lower=True,
+        dict_lower=False,
         dict_include_valid=True,
         dict_maxexs=-1,
         datatype='train',
