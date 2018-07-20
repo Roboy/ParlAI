@@ -30,9 +30,9 @@ async def service_callback():
                'datatype': 'train', 'image_mode': 'raw', 'numthreads': 1, 'hide_labels': False, 'batchsize': 1, \
                'include_labels': True, 'datapath': '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI/data', \
                'model': 'projects.personachat.persona_seq2seq:PersonachatSeqseqAgentSplit', \
-               'model_file': '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI/data/models/convai2/profilememory/profilememory_convai2_model', \
+               'model_file': '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI/data/models/convai2/profilememory/180718_1000/roboy_profilemem', \
                'dict_class': None, 'display_examples': False, 'image_size': 256, 'image_cropsize': 224, \
-               'dict_file': '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI/data/models/convai2/profilememory/profilememory_convai2.dict', \
+               'dict_file': '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI/data/models/convai2/profilememory/180718_1000/roboy_profilemem.dict', \
                'dict_initpath': None, 'dict_language': 'english', 'dict_max_ngram_size': -1, 'dict_minfreq': 0, \
                'dict_maxtokens': -1, 'dict_nulltoken': '__NULL__', 'dict_starttoken': '__START__',
                'dict_endtoken': '__END__', \
