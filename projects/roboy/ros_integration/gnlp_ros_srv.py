@@ -29,7 +29,7 @@ async def service_callback():
         opt = {'task': None, 'download_path': '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI/downloads', \
                'datatype': 'train', 'image_mode': 'raw', 'numthreads': 1, 'hide_labels': False, 'batchsize': 1, \
                'include_labels': True, 'datapath': '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI/data', \
-               'model': 'projects.personachat.persona_seq2seq:PersonachatSeqseqAgentSplit', \
+               'model': 'projects.roboy.ros_integration.roboy_persona_seq2seq:PersonachatSeqseqAgentSplit', \
                'model_file': '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI/data/models/convai2/profilememory/180718_1000/roboy_profilemem', \
                'dict_class': None, 'display_examples': False, 'image_size': 256, 'image_cropsize': 224, \
                'dict_file': '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI/data/models/convai2/profilememory/180718_1000/roboy_profilemem.dict', \
