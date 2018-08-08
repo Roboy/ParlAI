@@ -43,6 +43,8 @@ def maintain_dialog_history(history, observation, reply='',
         if useReplies == 'model' or (useReplies == 'label_else_model' and
                                      len(history['labels']) == 0):
             if reply:
+                if useStartEndIndices:
+                    reply = dict.start_token + ' ' + reply
                 history['dialog'].extend(parse(reply, splitSentences))
         elif len(history['labels']) > 0:
             r = history['labels'][0]
@@ -469,8 +471,8 @@ class PaddingUtils(object):
             # parse each label and append END
             if dq:
                 parsed_y = [deque(maxlen=truncate) for _ in labels]
-                for dq, y in zip(parsed_y, labels):
-                    dq.extendleft(reversed(dictionary.txt2vec(y)))
+                for deq, y in zip(parsed_y, labels):
+                    deq.extendleft(reversed(dictionary.txt2vec(y)))
             else:
                 parsed_y = [dictionary.txt2vec(label) for label in labels]
             if end_idx is not None:
@@ -522,7 +524,7 @@ class PaddingUtils(object):
                         y.append(c)
                 answers[valid_inds[i]] = y
             elif answers is not None:
-                answers[valid_inds[i]] = output_tokens
+                answers[valid_inds[i]] = curr_pred
 
             if random.random() > (1 - report_freq):
                 # log sometimes
@@ -561,7 +563,7 @@ class OffensiveLanguageDetector(object):
 
                 # Download the data.
                 fname = 'OffensiveLanguage.txt'
-                url = 'https://s3.amazonaws.com/fair-data/parlai/offensive_language/' + fname
+                url = 'http://parl.ai/downloads/offensive_language/' + fname
                 build_data.download(url, dpath, fname)
 
                 # Mark the data as built.
@@ -625,6 +627,19 @@ class OffensiveLanguageDetector(object):
 
         return None
 
+def clip_text(text, max_len):
+    if len(text) > max_len:
+        begin_text = ' '.join(
+            text[:math.floor(0.8 * max_len)].split(' ')[:-1]
+        )
+        end_text = ' '.join(
+            text[(len(text) - math.floor(0.2 * max_len)):].split(' ')[1:]
+        )
+        if len(end_text) > 0:
+            text = begin_text + ' ...\n' + end_text
+        else:
+            text = begin_text + ' ...'
+    return text
 
 def display_messages(msgs, prettify=False, ignore_fields='', max_len=1000):
     """Returns a string describing the set of messages provided
@@ -635,7 +650,9 @@ def display_messages(msgs, prettify=False, ignore_fields='', max_len=1000):
     episode_done = False
     ignore_fields = ignore_fields.split(',')
     for index, msg in enumerate(msgs):
-        if msg is None:
+        if msg is None or (index == 1 and 'agent_reply' in ignore_fields):
+            # We only display the first agent (typically the teacher) if we
+            # are ignoring the agent reply.
             continue
         if msg.get('episode_done'):
             episode_done = True
@@ -646,21 +663,14 @@ def display_messages(msgs, prettify=False, ignore_fields='', max_len=1000):
         # Only display rewards !=0 as they are confusing in non-RL tasks.
         if msg.get('reward', 0) != 0:
             lines.append(space + '[reward: {r}]'.format(r=msg['reward']))
+        for key in msg:
+            if key not in ['episode_done', 'id', 'image', 'text', 'labels', 'eval_labels', 'label_candidates', 'text_candidates', 'reward'] and key not in ignore_fields:
+                line = '[' + key + ']: ' + clip_text(str(msg.get(key)), max_len)
+                lines.append(space + line)
         if type(msg.get('image')) == str:
             lines.append(msg['image'])
         if msg.get('text', ''):
-            text = msg['text']
-            if len(text) > max_len:
-                begin_text = ' '.join(
-                    text[:math.floor(0.8 * max_len)].split(' ')[:-1]
-                )
-                end_text = ' '.join(
-                    text[(len(text) - math.floor(0.2 * max_len)):].split(' ')[1:]
-                )
-                if len(end_text) > 0:
-                    text = begin_text + ' ...\n' + end_text
-                else:
-                    text = begin_text + ' ...'
+            text = clip_text(msg['text'], max_len)
             ID = '[' + msg['id'] + ']: ' if 'id' in msg else ''
             lines.append(space + ID + text)
         if msg.get('labels') and 'labels' not in ignore_fields:
