@@ -9,6 +9,7 @@ from parlai.core.build_data import modelzoo_path
 from parlai.core.dict import DictionaryAgent
 from parlai.core.utils import maintain_dialog_history, PaddingUtils, round_sigfigs
 from parlai.core.thread_utils import SharedTable
+from parlai.core.torch_agent import TorchAgent
 from .modules import Seq2seq
 
 import torch
@@ -161,6 +162,8 @@ class Seq2seqAgent(Agent):
         agent.add_argument('--beam-size', type=int, default=1, help='Beam size, if 1 then greedy search')
         agent.add_argument('--beam-log-freq', type=float, default=0.0,
                            help='The portion of beams to dump from minibatch into model_name.beam_dump folder')
+        agent.add_argument('--topk', type=int, default=1, help='Top k sampling from renormalized softmax in test/valid time, default 1 means simple greedy max output')
+        agent.add_argument('--softmax-layer-bias', type='bool', default=False, help='Put True if you want to include the bias in decoder.e2s layer')
         Seq2seqAgent.dictionary_class().add_cmdline_args(argparser)
         return agent
 
@@ -177,6 +180,8 @@ class Seq2seqAgent(Agent):
         self.use_person_tokens = opt.get('person_tokens', False)
         self.batch_idx = shared and shared.get('batchindex') or 0
         self.rank = opt['rank_candidates']
+        self.beam_size = opt.get('beam_size', 1)
+        self.topk = opt.get('topk', 1)
         states = {}
 
         # check for cuda
@@ -233,9 +238,6 @@ class Seq2seqAgent(Agent):
             # get index of null token from dictionary (probably 0)
             self.NULL_IDX = self.dict[self.dict.null_token]
 
-            # search
-            self.beam_size = opt.get('beam_size', 1)
-
             if not hasattr(self, 'model_class'):
                 # this allows child classes to override this but inherit init
                 self.model_class = Seq2seq
@@ -244,7 +246,9 @@ class Seq2seqAgent(Agent):
                 start_idx=self.START_IDX, end_idx=self.END_IDX,
                 longest_label=states.get('longest_label', 1))
 
-            if not states and opt['embedding_type'] != 'random':
+            if opt.get('dict_tokenizer') == 'bpe' and opt['embedding_type'] != 'random':
+                print('skipping preinitialization of embeddings for bpe')
+            elif not states and opt['embedding_type'] != 'random':
                 # set up preinitialized embeddings
                 try:
                     import torchtext.vocab as vocab
@@ -383,8 +387,6 @@ class Seq2seqAgent(Agent):
 
     def v2t(self, vec):
         """Convert token indices to string of tokens."""
-        if isinstance(vec, Variable):
-            vec = vec.data
         new_vec = []
         for i in vec:
             if i == self.END_IDX:
@@ -524,7 +526,7 @@ class Seq2seqAgent(Agent):
             self.update_params()
         else:
             self.model.eval()
-            out = self.model(xs, ys=None, cands=cands, valid_cands=valid_cands, beam_size=self.beam_size)
+            out = self.model(xs, ys=None, cands=cands, valid_cands=valid_cands, beam_size=self.beam_size, topk=self.topk)
             predictions, cand_preds = out[0], out[2]
 
             if ys is not None:
@@ -547,6 +549,7 @@ class Seq2seqAgent(Agent):
             observations, self.dict, end_idx=self.END_IDX,
             null_idx=self.NULL_IDX, dq=True, eval_labels=True,
             truncate=self.truncate)
+
         if xs is None:
             return None, None, None, None, None, None, None
         xs = torch.LongTensor(xs)
@@ -652,7 +655,6 @@ class Seq2seqAgent(Agent):
             model['longest_label'] = self.model.longest_label
             model['optimizer'] = self.optimizer.state_dict()
             model['optimizer_type'] = self.opt['optimizer']
-            model['opt'] = self.opt
 
             with open(path, 'wb') as write:
                 torch.save(model, write)
@@ -664,19 +666,13 @@ class Seq2seqAgent(Agent):
     def shutdown(self):
         """Save the state of the model when shutdown."""
         path = self.opt.get('model_file', None)
-        if path is not None:
+        if path is not None and hasattr(self, 'optimizer'):
             self.save(path + '.shutdown_state')
         super().shutdown()
 
     def load(self, path):
         """Return opt and model states."""
         states = torch.load(path, map_location=lambda cpu, _: cpu)
-        if not os.path.isfile(path + '.opt'):
-            # backwards compatible to old models
-            self.opt = self.override_opt(states['opt'])
-            # save .opt file to make compatible
-            with open(path + ".opt", 'wb') as handle:
-                pickle.dump(self.opt, handle, protocol=pickle.HIGHEST_PROTOCOL)
         return states
 
     def receive_metrics(self, metrics_dict):
@@ -691,7 +687,7 @@ class mydefaultdict(defaultdict):
     """
     def get(self, key, default=None):
         # override default from "get" (like "__getitem__" already is)
-        return super().get(key, self.default_factory())
+        return super().get(key, default or self.default_factory())
 
 
 class PerplexityEvaluatorAgent(Seq2seqAgent):
@@ -705,6 +701,7 @@ class PerplexityEvaluatorAgent(Seq2seqAgent):
     def __init__(self, opt, shared=None):
         super().__init__(opt, shared)
         self.prev_enc = None
+        self.last_xs = None
 
     def next_word_probability(self, partial_out):
         """Return probability distribution over next words given an input and
@@ -723,16 +720,24 @@ class PerplexityEvaluatorAgent(Seq2seqAgent):
         obs = self.observation
         obs['eval_labels'] = [' '.join(partial_out)]
         batch = self.vectorize([obs])
-        if self.prev_enc is not None and batch[0].shape[1] != self.prev_enc[0].shape[1]:
-            self.prev_enc = None  # reset prev_enc
+
+        xs, ys = batch[0], batch[1]
+        if self.prev_enc is not None and self.last_xs is not None and (
+                xs.shape[1] != self.last_xs.shape[1] or
+                (xs == self.last_xs).sum().item() != xs.shape[1]):
+            # reset prev_enc, this is a new input
+            self.prev_enc = None
+        self.last_xs = xs
 
         self.model.eval()
-        self.model.longest_label = 1  # no need to predict farther ahead
+        # no need to predict farther ahead
+        # if you pass in any ys, this will be ignored
+        self.model.longest_label = 1
         out = self.model(
-            batch[0], # xs
-            ys=(batch[1] if len(partial_out) > 0 else None),
+            xs,
+            ys=(ys if len(partial_out) > 0 else None),
             prev_enc=self.prev_enc)
-        scores, self.prev_enc = out[1], out[-1]
+        scores, self.prev_enc = out[1], out[4]
         # scores is bsz x seqlen x num_words, so select probs of current index
         probs = F.softmax(scores.select(1, -1), dim=1).squeeze()
         dist = mydefaultdict(lambda: 1e-7)  # default probability for any token
