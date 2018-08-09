@@ -73,6 +73,6 @@ Roboys ROS-integration is derived from what happens through running `python proj
 `core/worlds.py` is where ROS_worlds.py is derived from. There, I changed [`def parlay()`](https://github.com/Roboy/ParlAI/blob/56b0d6ad5962cec0465d37a74e6211b12c60463e/parlai/core/worlds.py#L237-L245) function to return the model response to `gnlp_ros_srv.py`. 
 
 #### Implement personality
-`roboys_persona_seq2seq.py` is a slight modification of  `projects/personachat/persona_seq2seq.py` which has Roboys personality integrated in line [1602](https://github.com/Roboy/ParlAI/blob/b9844eaf83b5cb5c0fcb0d00c7fd68dcf28ea7cd/projects/roboy/ros_integration/roboys_persona_seq2seq.py#L1602). 
+`roboys_persona_seq2seq.py` is a slight modification of  `projects/personachat/persona_seq2seq.py` which has Roboys personality integrated in line [1602](https://github.com/Roboy/ParlAI/blob/b9844eaf83b5cb5c0fcb0d00c7fd68dcf28ea7cd/projects/roboy/ros_integration/roboys_persona_seq2seq.py#L1602). If you want to do changes / add new sentences to `self.persona_given` please keep in mind, that words might be 'out of dict'. If they are not represented in the dict-file coming with the model, they are replaced by the unknown token `__UNK__` before being handed on to the model. That way, if you insert something like `my name is roboy\n` the model will see `my name is __UNK__\n` and reply with whatever it thinks will fit best, in this case probably a name it has learned before. 
 
 #### Error handling
