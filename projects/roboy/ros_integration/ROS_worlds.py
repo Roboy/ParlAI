@@ -234,14 +234,13 @@ class DialogPartnerWorld(World):
 
     def parley(self, sentence=None):
         """Agent 0 goes first. Alternate between the two agents."""
-        #pdb.set_trace()  ###################################################################################################
         acts = self.acts
         agents = self.agents
+        
         acts[0] = {'id': 'localHuman', 'episode_done': False, 'label_candidates': None, 'text': 'hey there, roboy!'}
-        persona = 'your persona: i am a robot.\n'
         if sentence:
-            acts[0]['text'] = persona + sentence
-        #pdb.set_trace()  ###################################################################################################
+            acts[0]['text'] = sentence
+        
         agents[1].observe(validate(acts[0]))
         acts[1] = agents[1].act()
         agents[0].observe(validate(acts[1]))
