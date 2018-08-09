@@ -55,14 +55,16 @@ source ~/.bashrc
 ```
 source Documents/Roboy/catkin_ws/devel/setup.bash
 ```
-### 4. launch ROS service as in step 101.1
+### 4. launch ROS service 
+- (as in step 101.1)
 ```
 roslaunch rosbridge_server rosbridge_websocket.launch
 ```
-### 5. Update IP adress in gnlp_ros_srv.py 
+### 5. Update IP adress 
+- in gnlp_ros_srv.py, then launch as in setp 101.2
 
 
-## If you want to do further work on ParlAI
+## If you want to further work on ParlAI
 
 Roboys ROS-integration is derived from what happens through running `python projects/convai2/baselines/profilememory/interactive.py`.
 
@@ -70,7 +72,7 @@ Roboys ROS-integration is derived from what happens through running `python proj
 In `projects/convai2/baselines/profilememory/interactive.py` setup is done for interacting with a profilememory model, the actual interaction is defined in `parlai/scripts/interactive.py`.  We want to manipulate the world the agents interact in to allow I/O through ROS. 
 
 #### Extract model response
-`core/worlds.py` is where `ROS_worlds.py` is derived from. There, I changed [`def parlay()`](https://github.com/Roboy/ParlAI/blob/56b0d6ad5962cec0465d37a74e6211b12c60463e/parlai/core/worlds.py#L237-L245) function to return the model response to `gnlp_ros_srv.py` through adding a `sentence` variable. 
+`core/worlds.py` is where `ROS_worlds.py` is derived from. There, I changed [`def parlay(self)`](https://github.com/Roboy/ParlAI/blob/56b0d6ad5962cec0465d37a74e6211b12c60463e/parlai/core/worlds.py#L237-L245) function to return the model response to `gnlp_ros_srv.py` through adding a `sentence` variable. 
 
 #### Implement personality
 `roboys_persona_seq2seq.py` is a slight modification of  `projects/personachat/persona_seq2seq.py` which has Roboys personality integrated in line [1602](https://github.com/Roboy/ParlAI/blob/b9844eaf83b5cb5c0fcb0d00c7fd68dcf28ea7cd/projects/roboy/ros_integration/roboys_persona_seq2seq.py#L1602), an example is shown below. 
