@@ -62,5 +62,17 @@ roslaunch rosbridge_server rosbridge_websocket.launch
 ### 5. Update IP adress in gnlp_ros_srv.py 
 
 
+## If you want to do further work on ParlAI
 
+Roboys ROS-integration is derived from what happens through running `python projects/convai2/baselines/profilememory/interactive.py`.
 
+### Data flow:
+
+#### Extract model response
+`core/agents.py`
+`core/worlds.py` is where ROS_worlds.py is derived from. There, I changed the [`def parlay()`(https://github.com/Roboy/ParlAI/blob/56b0d6ad5962cec0465d37a74e6211b12c60463e/parlai/core/worlds.py#L237-L245) function to return the model response to `gnlp_ros_srv.py`. 
+`projects/personachat/seq2seq.py`
+
+#### Implement personality
+
+#### Error handling
