@@ -21,34 +21,42 @@ async def service_callback():
 
         i = 1  # counter for the service request IDs
 
-        #### prepare the model ####
+        ### set paths ###
+        parlai_home = '/Users/christoph/Documents/Roboy/ss18_showmaster/ParlAI'
+        download_path = parlai_home + '/downloads'
+        datapath = parlai_home + '/data'
+
+        model_path = parlai_home + '/data/models/convai2/profilememory/180718_1000'
+        model_file = model_path + '/roboy_profilemem'
+        dict_file = model_path + '/roboy_profilemem.dict'
+
+        personachat_code = 'projects.roboy.ros_integration.roboys_persona_seq2seq:PersonachatSeqseqAgentSplit'
+
+        ### prepare the model ###
         from parlai.core.agents import create_agent
-        # from parlai.core.ROS_worlds import create_task
         from ROS_worlds import create_task
 
-        opt = {'task': None, 'download_path': '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI/downloads', \
-               'datatype': 'train', 'image_mode': 'raw', 'numthreads': 1, 'hide_labels': False, 'batchsize': 1, \
-               'include_labels': True, 'datapath': '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI/data', \
-               'model': 'projects.roboy.ros_integration.roboys_persona_seq2seq:PersonachatSeqseqAgentSplit', \
-               'model_file': '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI/data/models/convai2/profilememory/180718_1000/roboy_profilemem', \
-               'dict_class': None, 'display_examples': False, 'image_size': 256, 'image_cropsize': 224, \
-               'dict_file': '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI/data/models/convai2/profilememory/180718_1000/roboy_profilemem.dict', \
-               'dict_initpath': None, 'dict_language': 'english', 'dict_max_ngram_size': -1, 'dict_minfreq': 0, \
-               'dict_maxtokens': -1, 'dict_nulltoken': '__NULL__', 'dict_starttoken': '__START__',
-               'dict_endtoken': '__END__', \
-               'dict_unktoken': '__UNK__', 'dict_tokenizer': 'split', 'dict_lower': False, 'hiddensize': 1024, \
-               'embeddingsize': 300, 'numlayers': 2, 'learningrate': 0.5, 'dropout': 0.1, 'bidirectional': False, \
-               'attention': 'general', 'no_cuda': False, 'gpu': -1, 'rank_candidates': False, 'truncate': 100,
-               'encoder': 'lstm', \
-               'decoder': 'same', 'optimizer': 'adam', 'personachat_useprevdialog': True,
-               'personachat_printattn': False, \
-               'personachat_attnsentlevel': False, 'personachat_sharelt': False, 'personachat_reweight': None, \
-               'personachat_guidesoftmax': False, 'personachat_newsetting': '', 'personachat_interact': False, \
-               'personachat_pdmn': False, 'personachat_tfidfperp': False, 'personachat_learnreweight': False, \
-               'personachat_embshareonly_pm_dec': False, 'personachat_s2sinit': False, 'interactive_mode': True, \
-               'use_persona': 'self', 'parlai_home': '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI', 'override': {}, \
-               'starttime': 'Jun15_16-58'}
-        opt['model_type'] = 'profilememory'  # for builder
+        opt = {'task': None, 'download_path': download_path, \
+                'datatype': 'train', 'image_mode': 'raw', 'numthreads': 1, 'hide_labels': False, 'batchsize': 1, \
+                'include_labels': True, 'datapath': datapath, \
+                'model': personachat_code, \
+                'model_file': model_file, \
+                'dict_class': None, 'display_examples': False, 'image_size': 256, 'image_cropsize': 224, \
+                'dict_file': dict_file, \
+                'dict_initpath': None, 'dict_language': 'english', 'dict_max_ngram_size': -1, 'dict_minfreq': 0, \
+                'dict_maxtokens': -1, 'dict_nulltoken': '__NULL__', 'dict_starttoken': '__START__', 'dict_endtoken': '__END__', \
+                'dict_unktoken': '__UNK__', 'dict_tokenizer': 'split', 'dict_lower': False, 'hiddensize': 1024, \
+                'embeddingsize': 300, 'numlayers': 2, 'learningrate': 0.5, 'dropout': 0.1, 'bidirectional': False, \
+                'attention': 'general', 'no_cuda': False, 'gpu': -1, 'rank_candidates': False, 'truncate': -1, 'encoder': 'lstm', \
+                'decoder': 'same', 'optimizer': 'adam', 'personachat_useprevdialog': True, 'personachat_printattn': False, \
+                'personachat_attnsentlevel': True, 'personachat_sharelt': False, 'personachat_reweight': 'use', \
+                'personachat_guidesoftmax': False, 'personachat_newsetting': '', 'personachat_interact': False, \
+                'personachat_pdmn': False, 'personachat_tfidfperp': False, 'personachat_learnreweight': True, \
+                'personachat_embshareonly_pm_dec': False, 'personachat_s2sinit': False, 'interactive_mode': True, \
+                'use_persona': 'self', 'parlai_home': parlai_home, 'override': {}, \
+                'starttime': 'Jun15_16-58'}
+        opt['model_type'] = 'profilememory' # for builder
+
         opt['task'] = 'parlai.agents.local_human.local_human:LocalHumanAgent'
 
         # Create model and assign it to the specified task
