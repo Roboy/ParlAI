@@ -71,8 +71,8 @@ Roboys ROS-integration is derived from what happens through running `python proj
 #### Extract model response
 `core/agents.py`
 `core/worlds.py` is where ROS_worlds.py is derived from. There, I changed the [`def parlay()`(https://github.com/Roboy/ParlAI/blob/56b0d6ad5962cec0465d37a74e6211b12c60463e/parlai/core/worlds.py#L237-L245) function to return the model response to `gnlp_ros_srv.py`. 
-`projects/personachat/seq2seq.py`
 
 #### Implement personality
+`roboys_persona_seq2seq.py` is a slight modification of  `projects/personachat/seq2seq.py` which has Roboys personality integrated in line 1602. 
 
 #### Error handling
