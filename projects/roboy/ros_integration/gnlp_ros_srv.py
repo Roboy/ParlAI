@@ -29,7 +29,7 @@ async def service_callback():
         opt = {'task': None, 'download_path': '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI/downloads', \
                'datatype': 'train', 'image_mode': 'raw', 'numthreads': 1, 'hide_labels': False, 'batchsize': 1, \
                'include_labels': True, 'datapath': '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI/data', \
-               'model': 'projects.roboy.ros_integration.roboy_persona_seq2seq:PersonachatSeqseqAgentSplit', \
+               'model': 'projects.roboy.ros_integration.roboys_persona_seq2seq:PersonachatSeqseqAgentSplit', \
                'model_file': '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI/data/models/convai2/profilememory/180718_1000/roboy_profilemem', \
                'dict_class': None, 'display_examples': False, 'image_size': 256, 'image_cropsize': 224, \
                'dict_file': '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI/data/models/convai2/profilememory/180718_1000/roboy_profilemem.dict', \
@@ -40,7 +40,7 @@ async def service_callback():
                'embeddingsize': 300, 'numlayers': 2, 'learningrate': 0.5, 'dropout': 0.1, 'bidirectional': False, \
                'attention': 'general', 'no_cuda': False, 'gpu': -1, 'rank_candidates': False, 'truncate': 100,
                'encoder': 'lstm', \
-               'decoder': 'same', 'optimizer': 'adam', 'personachat_useprevdialog': False,
+               'decoder': 'same', 'optimizer': 'adam', 'personachat_useprevdialog': True,
                'personachat_printattn': False, \
                'personachat_attnsentlevel': False, 'personachat_sharelt': False, 'personachat_reweight': None, \
                'personachat_guidesoftmax': False, 'personachat_newsetting': '', 'personachat_interact': False, \
