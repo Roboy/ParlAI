@@ -69,10 +69,23 @@ roslaunch rosbridge_server rosbridge_websocket.launch
 Roboys ROS-integration is derived from what happens through running `python projects/convai2/baselines/profilememory/interactive.py`.
 
 ### Data flow
-In `projects/convai2/baselines/profilememory/interactive.py` setup is done for interacting with a profilememory model, the actual interaction is defined in `parlai/scripts/interactive.py`.  We want to manipulate the world the agents interact in to allow I/O through ROS. 
+In `projects/convai2/baselines/profilememory/interactive.py` setup is done for interacting with a profilememory model, the actual interaction is defined in `parlai/scripts/interactive.py`.  There, the agents and the world is created. Consult section 4 of [“ParlAI: A Dialog Research Software Platform", arXiv:1705.06476](https://arxiv.org/abs/1705.06476) for definitions. Our tasks world is the `DialogPartnerWorld` class (line 217ff), where function `parley` handles the interaction between the two agents. 
+```
+def parley(self):
+    """Agent 0 goes first. Alternate between the two agents."""
+    acts = self.acts
+    agents = self.agents
+    acts[0] = agents[0].act()
+    agents[1].observe(validate(acts[0]))
+    acts[1] = agents[1].act()
+    agents[0].observe(validate(acts[1]))
+    self.update_counters()
+```
+Talking to the net, we are agent[0] where the net is agent[1]. agent[1] observes our actions through `.observe` which originates from `projects/personachat/persona_seq2seq.py`, line 1588ff. There, depending on the progress of the conversation, our input is preprocessed for the net. 
 
-#### Extract model response
-`core/worlds.py` is where `ROS_worlds.py` is derived from. There, I changed [`def parlay(self)`](https://github.com/Roboy/ParlAI/blob/56b0d6ad5962cec0465d37a74e6211b12c60463e/parlai/core/worlds.py#L237-L245) function to return the model response to `gnlp_ros_srv.py` through adding a `sentence` variable. 
+
+#### Get I/O through ROS
+We want to manipulate the interface between world the agents interact in and our agent[0] to allow I/O through ROS. `core/worlds.py` is where `ROS_worlds.py` is derived from. There, the [`def parlay(self)`](https://github.com/Roboy/ParlAI/blob/56b0d6ad5962cec0465d37a74e6211b12c60463e/parlai/core/worlds.py#L237-L245) function has been changed to accept user input from `gnlp_ros_srv.py` and return the model response through adding a `sentence` variable. 
 
 #### Implement personality
 `roboys_persona_seq2seq.py` is a slight modification of  `projects/personachat/persona_seq2seq.py` which has Roboys personality integrated in line [1602](https://github.com/Roboy/ParlAI/blob/b9844eaf83b5cb5c0fcb0d00c7fd68dcf28ea7cd/projects/roboy/ros_integration/roboys_persona_seq2seq.py#L1602), an example is shown below. 
