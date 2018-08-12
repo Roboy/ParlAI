@@ -4,20 +4,12 @@
 # clear tmp to prevent loading old runs
 rm -rf /tmp/
 
-python3 roboy_training.py -hs 1536 -emb 300 -nl 1 -bs 128 -lr 0.001 -dr 0.25 -ltim 15 -stim 1800 -vtim 300 -vp 20 -vmt f1 -vmm max -tr 100 &>../../../data/models/convai2/profilememory/logging/log.txt
+python3 roboy_training.py -hs 1536 -emb 300 -nl 4 -bs 128 -lr 0.0001 -dr 0.25 -ltim 15 -stim 1800 -vtim 300 -vp 25 -vmt f1 -vmm max -tr 100 &>../../../data/models/convai2/profilememory/logging/log.txt
 #--model-file ~/ss18_showmaster/ParlAI/data/models/convai2/profilememory/180810_1130/roboy_profilemem --dict-file ~/ss18_showmaster/ParlAI/data/models/convai2/profilememory/180810_1130/roboy_profilemem.dict
 # --dict-include-valid False
 # -dbf True
 #-tok split
-#--model-file ~/ss18_showmaster/ParlAI/data/models/convai2/profilememory/180703_1200/roboy_profilemem
 ############################# Legend #############################
-############################# Model #############################
-# Model
-#-m 'projects.personachat.persona_seq2seq:PersonachatSeqseqAgentSplit'\
-# Task: define personachat task
-#-t 'personachat:self'\
-# Model file location
-#-mf '/tmp/profilememconvai2'\
 ############################# Seq2Seq Arguments #############################
 # size of the hidden layers (default 1024):
 #-hs 1024\
@@ -59,16 +51,6 @@ python3 roboy_training.py -hs 1536 -emb 300 -nl 1 -bs 128 -lr 0.001 -dr 0.25 -lt
 # Any member of torch.optim is valid and will '
 # be used with default params except learning
 #-opt adam\
-############################# Personachat #############################
-# interact during validation?!
-#--personachat_interact False
-# share lookup table among self.lt, self.lt_per, self.e2o (default False):
-#--personachat_sharelt True\
-# helps print nicer text during interactive mode
-#--interactive-mode False\
-#--personachat_attnsentlevel True\
-#--personachat_reweight use\
-#--personachat_learnreweight True\
 ############################# arguments from scripts/train_model.py: #############################
 # evaltask
 #-et\
