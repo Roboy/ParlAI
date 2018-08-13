@@ -1,6 +1,16 @@
 ## 1 - Why the ParlAI?
+Roboy dialog consists of a state machine. 
+personality file contains several states and what they do
+if indicated that state has a fallback 
+input which can not be parsed is forwarded to the generative model if implemented that way. 
+
 Roboy's fall-back in case it does not know what to answer. 
 Embedded in dialogue through...
+
+parser semantic analysis/extraction of information
+keine antwort von state nor from parser
+option: fall back
+input forwarded to generative model through ros
 
 ## 2 - Setup
 ### Prerequisits
@@ -47,9 +57,9 @@ To interact with profilememory model (downloaded from model zoo if not available
 python projects/convai2/baselines/profilememory/interactive.py 
 ```
 
-## ParlAI Support
-ParlAI is currently maintained by Emily Dinan, Alexander H. Miller, Kurt Shuster, Jack Urbanek and Jason Weston, a very helpful team. If you have any questions, bug reports or feature requests, post on their [Github Issues page](https://github.com/facebookresearch/ParlAI/issues) and issues will usually be resolved within hours (NY time!).
+## 4 - Note
+The server version runs on ParlAI branch `roboy_server`
 
-## Lessons Learned
+## 5 - Lessons Learned
 - there are preinstalled packages abailable for the GCloud setup which makes it way smoother
 - ParlAI is kind of a centralized framework, so functions in /core/ for instance work with all the available datasets and architectures. This entails that changes in totally different parts of the code by one of the contributors can prevent an implementation which used to work just fine for you from running. So think and thoroughly test before you merge!
