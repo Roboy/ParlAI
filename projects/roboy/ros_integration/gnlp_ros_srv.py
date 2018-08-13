@@ -25,7 +25,10 @@ async def service_callback():
         # Mac
         #parlai_home = '/Users/christoph/Documents/Roboy/ss18_showmaster/ParlAI'
         # Ubuntu
-        parlai_home = '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI'
+        # parlai_home = '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI'
+        # Server
+        parlai_home = '~/ws/src/ParlAI'
+
         download_path = parlai_home + '/downloads'
         datapath = parlai_home + '/data'
 
