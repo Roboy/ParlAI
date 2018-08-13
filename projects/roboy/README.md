@@ -35,10 +35,6 @@ pip -install -r requirements.txt
 - matplotlib
 - [Spacy](https://spacy.io/usage/) (make sure to get module en as well!) 
 
-#### ROS
-- websockets (for ROS)
-- further training requirements specified at the end of the according [README](https://github.com/Roboy/ParlAI/tree/master/projects/roboy/train)
-
 ## 3 - Examples
 
 [ParlAI](https://github.com/Roboy/ParlAI/) (pronounced “par-lay”) is a framework for dialog AI research by Facebook, implemented in Python. See their website [http://parl.ai](http://parl.ai) for further docs
