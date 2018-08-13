@@ -1,21 +1,14 @@
-## Why the ParlAI?
+## 1 - Why the ParlAI?
 Roboy's fall-back in case it does not know what to answer. 
 Embedded in dialogue through...
 
-## Setup
-### Requirements:
-- [ParlAI](https://github.com/facebookresearch/ParlAI)
-- [ss18_showmaster](https://github.com/Roboy/ss18_showmaster)
-- Python 36 environment incl. [PyTorch](http://pytorch.org/)
-- jupyter (for analysis)
-- matplotlib (for analysis)
-- websockets (for ROS)
-- further training requirements specified at the end of the according [README](https://github.com/Roboy/ParlAI/tree/master/projects/roboy/train)
+## 2 - Setup
+### Prerequisits
+- Python 36 environment
+- pip3
 
 ### Installing ParlAI
-
 Run the following commands to clone the repository and install ParlAI in the folder wanted:
-
 ```
 git clone https://github.com/Roboy/ParlAI.git
 cd ~/ParlAI
@@ -25,12 +18,28 @@ This will link the cloned directory to your site-packages.
 
 This is the recommended installation procedure, as it provides ready access to the examples and allows you to modify anything you might need. This is especially useful if you if you want to submit another task to the repository.
 
-All needed data will be downloaded to ~/ParlAI/data, and any non-data files (such as the MemNN code) if requested will be downloaded to ~/ParlAI/downloads. If you need to clear out the space used by these files, you can safely delete these directories and any files needed will be downloaded again. Now go to `projects/roboy` and run
+All needed data will be downloaded to ~/ParlAI/data, and any non-data files (such as the MemNN code) if requested will be downloaded to ~/ParlAI/downloads. If you need to clear out the space used by these files, you can safely delete these directories and any files needed will be downloaded again. 
+
+### Further requirements
+ParlAI does not install all requirements in setup, some are hidden in the code. For each use case get the following modules as well:
+
+#### Interacting
+- [PyTorch](http://pytorch.org/)
+- go to `projects/roboy` and run
 ```
 pip -install -r requirements.txt
 ```
 
-## Examples
+#### Training & Analysis
+- jupyter
+- matplotlib
+- [Spacy](https://spacy.io/usage/) (make sure to get module en as well!) 
+
+#### ROS
+- websockets (for ROS)
+- further training requirements specified at the end of the according [README](https://github.com/Roboy/ParlAI/tree/master/projects/roboy/train)
+
+## 3 - Examples
 
 [ParlAI](https://github.com/Roboy/ParlAI/) (pronounced “par-lay”) is a framework for dialog AI research by Facebook, implemented in Python. See their website [http://parl.ai](http://parl.ai) for further docs
 
