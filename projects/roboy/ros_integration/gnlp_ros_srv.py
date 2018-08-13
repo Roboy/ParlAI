@@ -75,7 +75,7 @@ async def service_callback():
                 print(sentence)
                 answer = world.parley(sentence)
                 model_response = answer
-                print(model_response)
+                #print(model_response)
                 srv_response = {}
                 answer = {}
 
