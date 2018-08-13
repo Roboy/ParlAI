@@ -1,18 +1,14 @@
 # Training
 
 ## Background ParlAI Training
-There are many many options and arguments, your best source to get an overview is the shell script [./train_script.sh](https://github.com/Roboy/ParlAI/blob/master/projects/roboy/train/roboy_train_profilememory.sh) or the according ParlAI functions
+There are many many options and arguments, your best source to get an overview is the shell script [./train_script.sh](https://github.com/Roboy/ParlAI/blob/master/projects/roboy/train/roboy_train_profilememory.sh) or the according ParlAI functions.
 ### Training Options
 - define a timeframe in which to train
 - define a number of epochs to train
-- PATIENCE: when the validation accuracy doesn't improve X times in a row training is considered finished
+- PATIENCE: when the validation accuracy doesn't improve X times in a row training is considered complete.
 ### Pre-trained models & fine-tuning
-- There are pre-trained models available through model zoo. get them through running python projects/convai2/baselines/profilememory/interactive.py from the ParlAI folder for instance 
-- For fine-tuning, include flags like
-```
--- model-file ~/ss18_showmaster/ParlAI/data/models/convai2/profilememory/180703_1200/roboy_profilemem --dict-file ~/ss18_showmaster/ParlAI/data/models/convai2/profilememory/180703_1200/roboy_profilemem.dict
-```
-in the call.
+- There are pre-trained models available through model zoo. However, they have been trained using a different implementation and are not really compatible to what is there now. Training from scratch does not hurt and one gets decent results within 10 epochs or so. 
+
 
 ## How To: Set up training
 - go to shell script in ss18_showmaster/ParlAI/projects/roboy/train/
@@ -22,7 +18,7 @@ in the call.
 - add, commit,push latest ParlAI to ss18_showmaster 
 
 ## How To: Train
-- [Boot useastdeepqa VM instance on GCP](https://console.cloud.google.com/compute/ )
+- [Boot ubuntu1604uswest1b VM instance on GCP](https://console.cloud.google.com/compute/ )
 - Click SSH to open new shell in browser (alternatively, install gcloud command line tools on local machine)
 - go to ss18_showmaster and pull
 - go to ParlAI and pull
@@ -37,7 +33,13 @@ source ~/venvParlAI36/bin/activate
 - Press Ctrl+a, Ctrl+d in quick sequence -> screen is now detached
 - now you can close the shell while training continues
 - to return to this screen, open shell and do screen -r (or screen -ls if multiple; don't forget to detach again)
-- You can close the shell now (or just keep pressing Ctrl+a, Ctrl+d until all shells are closed)
+
+#### Fine Tuning
+In the shell script you can specify a model and dict file to load before training. This could look something like this:
+```
+python3 roboy_training.py --model-file `[path]/roboy_profilemem --dict-file [path]/roboy_profilemem.dict -nl 4 -bs 128 -lr 0.001 -dr 0.4
+```
+_Make sure to have the --model-file and --dict-file flags before setting the training parameters. Parser arguments will be overwritten otherwise_
 
 ## How To: Retrieve Data and Evaluate Training
 - to retrieve log files, do 
@@ -72,8 +74,9 @@ python projects/convai2/baselines/profilememory/interactive.py --model-file data
 ./google-cloud-sdk/bin/gcloud init
 
 ## File Transfer
-- Copy files from Instance to local machine: gcloud compute copy-files [INSTANCE_NAME]:[REMOTE_FILE_PATH] [LOCAL_FILE_PATH]
-- i.e. in a terminal do 'gcloud compute scp --recurse team_roboy@ubuntu1604uswest1b:~/ParlAI/data/models/convai2/profilememory ~/Desktop'
+- Copy files from Instance to local machine: gcloud compute copy-files [INSTANCE_NAME]:[REMOTE_FILE_PATH] [LOCAL_FILE_PATH]`, i.e.
+```gcloud compute scp --recurse team_roboy@ubuntu1604uswest1b:~/ParlAI/data/models/convai2/profilememory ~/Desktop'
+```
 - [Further file transfer help](https://cloud.google.com/compute/docs/instances/transfer-files)
 
 ## Configuration (21.06.2018)
@@ -96,4 +99,4 @@ python projects/convai2/baselines/profilememory/interactive.py --model-file data
 - Python 3.6
 - [Nvidia drivers](https://cloud.google.com/compute/docs/gpus/add-gpus)
 - Cuda 9.0 (9.1 does not work yet (trust me I tried))
-- [Screen reconnection](https://www.howtogeek.com/howto/ubuntu/keep-your-ssh-session-running-when-you-disconnect/)
+- [Screen reconnection](https://www.howtogeek.com/howto/ubuntu/keep-your-ssh-session-running-when-you-disconnect/)`
