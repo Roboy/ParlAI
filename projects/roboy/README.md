@@ -14,18 +14,21 @@ Embedded in dialogue through...
 
 ### Installing ParlAI
 
-Run the following commands to clone the repository and install ParlAI:
+Run the following commands to clone the repository and install ParlAI in the folder wanted:
 
-```bash
-git clone https://github.com/Roboy/ParlAI.git ~/ParlAI
-cd ~/ParlAI; python setup.py develop
 ```
-
-This will link the cloned directory to your site-packages.
+git clone https://github.com/Roboy/ParlAI.git
+cd ~/ParlAI
+python setup.py develop
+```
+This will link the cloned directory to your site-packages. 
 
 This is the recommended installation procedure, as it provides ready access to the examples and allows you to modify anything you might need. This is especially useful if you if you want to submit another task to the repository.
 
-All needed data will be downloaded to ~/ParlAI/data, and any non-data files (such as the MemNN code) if requested will be downloaded to ~/ParlAI/downloads. If you need to clear out the space used by these files, you can safely delete these directories and any files needed will be downloaded again.
+All needed data will be downloaded to ~/ParlAI/data, and any non-data files (such as the MemNN code) if requested will be downloaded to ~/ParlAI/downloads. If you need to clear out the space used by these files, you can safely delete these directories and any files needed will be downloaded again. Now go to `projects/roboy` and run
+```
+pip -install -r requirements.txt
+```
 
 ## Examples
 
@@ -45,4 +48,3 @@ ParlAI is currently maintained by Emily Dinan, Alexander H. Miller, Kurt Shuster
 ## Lessons Learned
 - there are preinstalled packages abailable for the GCloud setup which makes it way smoother
 - ParlAI is kind of a centralized framework, so functions in /core/ for instance work with all the available datasets and architectures. This entails that changes in totally different parts of the code by one of the contributors can prevent an implementation which used to work just fine for you from running. So think and thoroughly test before you merge!
-- Most things seem to be very straight forward 
