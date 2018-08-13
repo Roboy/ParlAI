@@ -18,10 +18,14 @@ input forwarded to generative model through ros
 - pip3
 
 ### Installing ParlAI
-Run the following commands to clone the repository and install ParlAI in the folder wanted:
+Go to the folder you want to have ParlAI in and run the following commands to clone the repository and install ParlAI:
 ```
 git clone https://github.com/Roboy/ParlAI.git
+```
+```
 cd ~/ParlAI
+```
+```
 python setup.py develop
 ```
 This will link the cloned directory to your site-packages. 
@@ -37,13 +41,15 @@ ParlAI does not install all requirements in setup, some are hidden in the code. 
 - [PyTorch](http://pytorch.org/)
 - go to `projects/roboy` and run
 ```
-pip -install -r requirements.txt
+pip install -r requirements.txt
 ```
 
-#### Training & Analysis
+#### Training
+- [Spacy](https://spacy.io/usage/) (make sure to get module en as well!) 
+
+#### Analysis
 - jupyter
 - matplotlib
-- [Spacy](https://spacy.io/usage/) (make sure to get module en as well!) 
 
 ## 3 - Examples
 
@@ -52,13 +58,13 @@ pip -install -r requirements.txt
 ParlAI is described in the following paper:
 [“ParlAI: A Dialog Research Software Platform", arXiv:1705.06476](https://arxiv.org/abs/1705.06476), the dataset used is described in the original [PersonaChat](https://arxiv.org/pdf/1801.07243.pdf) paper.
 
-To interact with profilememory model (downloaded from model zoo if not available yet), in ParlAI folder run:
+To interact with a pretrained profilememory model (downloaded from model zoo), in `ParlAI` folder run:
 ```
 python projects/convai2/baselines/profilememory/interactive.py 
 ```
 
 ## 4 - Note
-The server version runs on ParlAI branch `roboy_server`
+The server version runs on ParlAI branch `roboy_server``. (just for testing convenience)
 
 ## 5 - Lessons Learned
 - there are preinstalled packages abailable for the GCloud setup which makes it way smoother

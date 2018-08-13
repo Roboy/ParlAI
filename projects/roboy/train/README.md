@@ -75,7 +75,8 @@ python projects/convai2/baselines/profilememory/interactive.py --model-file data
 
 ## File Transfer
 - Copy files from Instance to local machine: gcloud compute copy-files [INSTANCE_NAME]:[REMOTE_FILE_PATH] [LOCAL_FILE_PATH]`, i.e.
-```gcloud compute scp --recurse team_roboy@ubuntu1604uswest1b:~/ParlAI/data/models/convai2/profilememory ~/Desktop'
+```
+gcloud compute scp --recurse team_roboy@ubuntu1604uswest1b:~/ParlAI/data/models/convai2/profilememory ~/Desktop'
 ```
 - [Further file transfer help](https://cloud.google.com/compute/docs/instances/transfer-files)
 
