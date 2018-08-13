@@ -14,6 +14,12 @@ python projects/convai2/baselines/profilememory/interactive.py
 ## ROS Communication 101
 
 ### 1. Rosbridge Websocket
+- run 
+```
+source (catkin_ws)/devel/setup.bash
+```
+with (catkin_ws) being the location of your catkin workspace
+
 - in terminal, run 
 ```
 roslaunch rosbridge_server rosbridge_websocket.launch
