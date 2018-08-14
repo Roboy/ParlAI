@@ -4,8 +4,9 @@
 # clear tmp to prevent loading old runs
 rm -rf /tmp/
 
-python3 roboy_training.py -hs 763 -emb 300 -nl 2 -bs 64 -lr 0.0001 -dr 0.2 -ltim 15 -stim 1800 -vtim 180 -vp 20 -vmt f1 -vmm max -tr 100 &>../../../data/models/convai2/profilememory/logging/log.txt
-# --model-file ~/ss18_showmaster/ParlAI/data/models/convai2/profilememory/180812_1405/roboy_profilemem --dict-file ~/ss18_showmaster/ParlAI/data/models/convai2/profilememory/180812_1405/roboy_profilemem.dict
+python3 roboy_training.py --model-file ~/ss18_showmaster/ParlAI/data/models/convai2/profilememory/180814_1330/roboy_profilemem --dict-file ~/ss18_showmaster/ParlAI/data/models/convai2/profilememory/180814_1330/roboy_profilemem.dict -hs 763 -emb 300 -nl 2 -bs 32 -lr 0.00001 -dr 0.4 -ltim 15 -stim 1800 -vtim 180 -vp 10 -vmt f1 -vmm max -tr 100 &>../../../data/models/convai2/profilememory/logging/log.txt
+#--gradient_clip 0.1 --optimizer 'sgd' --embedding_type 'glove' --momentum 0.9 --personachat_attnsentlevel --personachat_sharelt --personachat_reweight 'use' --personachat_learnreweight
+#
 # --dict-include-valid False
 # -dbf True
 #-tok split
