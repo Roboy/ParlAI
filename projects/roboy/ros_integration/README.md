@@ -15,7 +15,7 @@ python projects/convai2/baselines/profilememory/interactive.py
 Roboys ROS-integration is derived from what happens through running `python projects/convai2/baselines/profilememory/interactive.py`.
 
 ### Data flow
-In `projects/convai2/baselines/profilememory/interactive.py` setup is done for interacting with a profilememory model, the actual interaction is defined in `parlai/scripts/interactive.py`.  There, the agents and the world is created. Consult section 4 of [“ParlAI: A Dialog Research Software Platform", arXiv:1705.06476](https://arxiv.org/abs/1705.06476) for definitions. Our tasks world is the `DialogPartnerWorld` class (line 217ff), where function `parley` handles the interaction between the two agents. 
+In `projects/convai2/baselines/profilememory/interactive.py`, setup is done for interacting with a _profilememory_ model, the actual interaction is defined in `parlai/scripts/interactive.py`.  There, the call for creation of the agents and the world is made. Consult section 4 of [“ParlAI: A Dialog Research Software Platform"](https://arxiv.org/abs/1705.06476) for definitions. Our tasks world is defined in `ParlAI/parlai/core/worlds.py` as [`DialogPartnerWorld`](https://github.com/Roboy/ParlAI/blob/5baff6372e44a53fea4ce7b437b4f175d8f9b846/parlai/core/worlds.py#L217-L298) class (line 217ff), where function `parley` (line 237) handles the interaction between the two agents as shown below. 
 ```
 def parley(self):
 """Agent 0 goes first. Alternate between the two agents."""
@@ -27,7 +27,7 @@ acts[1] = agents[1].act()
 agents[0].observe(validate(acts[1]))
 self.update_counters()
 ```
-Talking to the net, we are agent[0] where the net is agent[1]. agent[1] observes our actions through `.observe` which originates from `projects/personachat/persona_seq2seq.py`, line 1588ff. There, depending on the progress of the conversation, our input is preprocessed for the net. 
+Talking to the net, we are `agent[0]` while the net is `agent[1]`. `agent[1]` observes our actions through `.observe` which originates from [`projects/personachat/persona_seq2seq.py`](https://github.com/Roboy/ParlAI/blob/5baff6372e44a53fea4ce7b437b4f175d8f9b846/projects/personachat/persona_seq2seq.py#L1588-L1624), line 1588ff. There, depending on the progress of the conversation, our input is preprocessed for the net. 
 
 #### Get I/O through ROS
 We want to manipulate the interface between world the agents interact in and our agent[0] to allow I/O through ROS. `core/worlds.py` is where `ROS_worlds.py` is derived from. There, the [`def parlay(self)`](https://github.com/Roboy/ParlAI/blob/56b0d6ad5962cec0465d37a74e6211b12c60463e/parlai/core/worlds.py#L237-L245) function has been changed to accept user input from `gnlp_ros_srv.py` and return the model response through adding a `sentence` variable. 
