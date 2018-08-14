@@ -27,7 +27,15 @@ acts[1] = agents[1].act()
 agents[0].observe(validate(acts[1]))
 self.update_counters()
 ```
-Talking to the net, we are `agent[0]` while the net is `agent[1]`. `agent[1]` observes our actions through `.observe` which originates from [`projects/personachat/persona_seq2seq.py`](https://github.com/Roboy/ParlAI/blob/5baff6372e44a53fea4ce7b437b4f175d8f9b846/projects/personachat/persona_seq2seq.py#L1588-L1624), line 1588ff. There, depending on the progress of the conversation, our input is preprocessed for the net. 
+Talking to the net, we are `agent[0]` while the net is `agent[1]`. `agent[1]` observes our actions through `.observe` which originates from [`projects/personachat/persona_seq2seq.py`](https://github.com/Roboy/ParlAI/blob/5baff6372e44a53fea4ce7b437b4f175d8f9b846/projects/personachat/persona_seq2seq.py#L1588-L1624), line 1588ff. There, depending on the progress of the conversation, our input is preprocessed for the net. When intractively engaging with a net, your input might be observed such as shown below: 
+```
+observation = {'id': 'localHuman', 'episode_done': False, 'label_candidates': None, 'text': 'your persona: I am a robot.\n what are you?'}
+```
+This originates from  `your persona: I am a robot.\n what are you?` as input and is processed to look like this:
+```
+observation = {'id': 'localHuman', 'episode_done': False, 'label_candidates': None, 'text': ' what are you?', 'persona': 'I am a robot.\n'}
+```
+Here, the  `text` part is replaced by every "interaction round" while the `persona` part is kept throughout interactions. Whenever you give the net a new persona sentence during interaction, it is appended to the `persona` part, which is only cleared once you stop interacting with the model (i.e. through Ctrl+d) in our case. 
 
 #### Get I/O through ROS
 We want to manipulate the interface between world the agents interact in and our agent[0] to allow I/O through ROS. `core/worlds.py` is where `ROS_worlds.py` is derived from. There, the [`def parlay(self)`](https://github.com/Roboy/ParlAI/blob/56b0d6ad5962cec0465d37a74e6211b12c60463e/parlai/core/worlds.py#L237-L245) function has been changed to accept user input from `gnlp_ros_srv.py` and return the model response through adding a `sentence` variable. 
@@ -38,7 +46,7 @@ We want to manipulate the interface between world the agents interact in and our
 self.persona_given = 'I am a robot.\nI cant walk.\nI own a tricycle.\n'
 ```
 
-If you want to do changes / add new sentences to `self.persona_given` please keep in mind, that words might be 'out of dict'. If they are not represented in the dict-file coming with the model, they are replaced by the unknown token `__UNK__` before being handed on to the model. That way, if you insert something like `my name is roboy\n` the model will see `my name is __UNK__\n` and reply with whatever it thinks will fit best, in this case probably a name it has learned before. You can circumvent this by replacing an entry in the dict file. This works best when words are from the same 'intuitive category', so in the example given replace a name you find in the dict file by roboy (make sure to stick with the appropriate upper-case/lower-case convention). !Do not attempt to add an entry to the dict file!
+If you want to do changes / add new sentences to `self.persona_given` please keep in mind, that words might be 'out of dict'. If they are not represented in the dict-file coming with the model, they are replaced by the unknown token `__UNK__` before being handed on to the model. That way, if you insert something like `my name is roboy\n` the model will see `my name is __UNK__\n` and will utilize that knowledge with whatever it thinks will fit best, in this case probably a name it has learned before. You can circumvent this by replacing an entry in the dict file. This works best when words are from the same 'intuitive category', so in the example given replace a name you find in the dict file by roboy (*make sure to stick with the appropriate upper-case/lower-case convention*). *!Do not attempt to add an entry to the dict file!* *Do not add too many persona-sentences to the model as the influence every single statement / word has on the softmax will descrease!*
 
 #### How it works together
 The main script for the ROS-integration essentially is a modification of the [earlier used implementation](https://github.com/Roboy/DeepQA/blob/master/gnlp_ros_srv.py). [Setup is hard-coded](https://github.com/Roboy/ParlAI/blob/fc5fe7540dedf993765522a9fa88ca0bec7037d1/projects/roboy/ros_integration/gnlp_ros_srv.py#L39-L57) as extractet from `opt`-variable in [`profilememory/interactive.py`](https://github.com/Roboy/ParlAI/blob/roboy_devel/projects/convai2/baselines/profilememory/interactive.py). 
