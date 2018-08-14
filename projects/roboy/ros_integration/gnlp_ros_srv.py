@@ -22,12 +22,14 @@ async def service_callback():
         i = 1  # counter for the service request IDs
 
         ### set paths ###
-        # Mac
-        #parlai_home = '/Users/christoph/Documents/Roboy/ss18_showmaster/ParlAI'
-        # Ubuntu
-        # parlai_home = '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI'
+        # Nuke
+        parlai_home = '/home/roboy/workspace/Roboy/src/ParlAI'
         # Server
-        parlai_home = '/home/roboy/ws/src/ParlAI'
+        # parlai_home = '/home/roboy/ws/src/ParlAI'
+        # local mac
+        #parlai_home = '/Users/christoph/Documents/Roboy/ss18_showmaster/ParlAI'
+        # vm ubuntu
+        # parlai_home = '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI'
 
         download_path = parlai_home + '/downloads'
         datapath = parlai_home + '/data'
