@@ -1599,7 +1599,8 @@ class PersonachatSeqseqAgentSplit(Agent):
                 self.prev_dialog = ''
                 self.last_obs = ''
                 self.persona_given = ''
-                self.persona_given = 'I am a robot.\nI cant walk.\nI own a tricycle.\nI love my team.\nI go to fairs to make money.\nBeer is on me.\n'
+                self.persona_given = 'I am a robot.\nI cant walk.\nI own a tricycle.\n'
+                #I love my team.\nI go to fairs to make money.\nBeer is on me.\n'
             text_split = observation['text'].split('\n')
             if self.usepersona:
                 #pdb.set_trace()
