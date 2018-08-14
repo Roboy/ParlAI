@@ -1,18 +1,15 @@
 ## 1 - Why the ParlAI?
-Roboy dialog consists of a state machine. 
-personality file contains several states and what they do
-if indicated that state has a fallback 
-input which can not be parsed is forwarded to the generative model if implemented that way. 
+Roboy dialog system essentially is a state machine. A personality file contains several states and what they do. Each state can make use of an optional fallback position. This is triggered when input can not be parsed. Then, input will be redirected to a generative model to create an output. ParlAI is the software framework behind this generative model. 
 
-Roboy's fall-back in case it does not know what to answer. 
+
 Embedded in dialogue through...
 
-parser semantic analysis/extraction of information
-keine antwort von state nor from parser
-option: fall back
 input forwarded to generative model through ros
 
-## 2 - Setup
+## 2- How the ParlAI
+Roboy is using a so-called profilememory neural net, which essentially consists of a sequence to sequence RNN with LSTMs. An attention mechanism is used to influence outputs in a way ... make it Roboy. The sentences given  are "XYZ". If too many personality sentences are specified, the influence of each will decrease and therefore the performance of the model.   
+
+## 2 - Setup the ParlAI
 ### Prerequisits
 - Python 36 environment
 - pip3
@@ -69,3 +66,4 @@ The server version runs on ParlAI branch `roboy_server``. (just for testing conv
 ## 5 - Lessons Learned
 - there are preinstalled packages abailable for the GCloud setup which makes it way smoother
 - ParlAI is kind of a centralized framework, so functions in /core/ for instance work with all the available datasets and architectures. This entails that changes in totally different parts of the code by one of the contributors can prevent an implementation which used to work just fine for you from running. So think and thoroughly test before you merge!
+- Do not use too many personality phrases.
