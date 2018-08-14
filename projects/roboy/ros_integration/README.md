@@ -4,18 +4,19 @@
 - [ROSbridge](http://wiki.ros.org/rosbridge_suite)
 - [Catkin Workspace](https://github.com/Roboy)
 
-### Prerequisites
+### Model
+- which model to use is specified in `ParlAI/projects/roboy/ros_integration/gnlp_ros_srv.py`. Ideally, you only need to adapt the `parlai_home` and `model_path` variables to point to a model. 
+- if you start from scratch, you can get a model from the model zoo. From scratch, the easiest way to achieve this is to run `python projects/convai2/baselines/profilememory/interactive.py`. Then, adapth paths accordingly. If stuff doesn't work out the way you want it to, there is a `ROS_Test` jupyter notebook you can use for debugging. 
 
-- you need a full model setup. From scratch, the easiest way to achieve this is to run
-```
-python projects/convai2/baselines/profilememory/interactive.py 
-```
 ## If you want to further work on ParlAI
 
-Roboys ROS-integration is derived from what happens through running `python projects/convai2/baselines/profilememory/interactive.py`.
+Roboys ROS-integration is derived from what happens through running 
+```
+python projects/convai2/baselines/profilememory/interactive.py --attention general --personachat-useprevdialog
+```
 
 ### Data flow
-In `projects/convai2/baselines/profilememory/interactive.py`, setup is done for interacting with a _profilememory_ model, the actual interaction is defined in `parlai/scripts/interactive.py`.  There, the call for creation of the agents and the world is made. Consult section 4 of [“ParlAI: A Dialog Research Software Platform"](https://arxiv.org/abs/1705.06476) for definitions. Our tasks world is defined in `ParlAI/parlai/core/worlds.py` as [`DialogPartnerWorld`](https://github.com/Roboy/ParlAI/blob/5baff6372e44a53fea4ce7b437b4f175d8f9b846/parlai/core/worlds.py#L217-L298) class (line 217ff), where function `parley` (line 237) handles the interaction between the two agents as shown below. 
+In `projects/convai2/baselines/profilememory/interactive.py`, setup is done for interacting with a _profilememory_ model, the actual interaction is defined in `parlai/scripts/interactive.py`.  There, the call for creation of the world and the agents which interact in it is made. Consult section 4 of [“ParlAI: A Dialog Research Software Platform"](https://arxiv.org/abs/1705.06476) for definitions. Our task's world is defined in `ParlAI/parlai/core/worlds.py` as [`DialogPartnerWorld`](https://github.com/Roboy/ParlAI/blob/5baff6372e44a53fea4ce7b437b4f175d8f9b846/parlai/core/worlds.py#L217-L298) class (line 217ff), where function `parley` (line 237) handles the interaction between the two agents as shown below. 
 ```
 def parley(self):
 """Agent 0 goes first. Alternate between the two agents."""
@@ -31,7 +32,7 @@ Talking to the net, we are `agent[0]` while the net is `agent[1]`. `agent[1]` ob
 ```
 observation = {'id': 'localHuman', 'episode_done': False, 'label_candidates': None, 'text': 'your persona: I am a robot.\n what are you?'}
 ```
-This originates from  `your persona: I am a robot.\n what are you?` as input and is processed to look like this:
+This originates from  `your persona: I am a robot.\n what are you?` as input and is split up to look like this:
 ```
 observation = {'id': 'localHuman', 'episode_done': False, 'label_candidates': None, 'text': ' what are you?', 'persona': 'I am a robot.\n'}
 ```
@@ -41,11 +42,10 @@ Here, the  `text` part is replaced by every "interaction round" while the `perso
 We want to manipulate the interface between world the agents interact in and our agent[0] to allow I/O through ROS. `core/worlds.py` is where `ROS_worlds.py` is derived from. There, the [`def parlay(self)`](https://github.com/Roboy/ParlAI/blob/56b0d6ad5962cec0465d37a74e6211b12c60463e/parlai/core/worlds.py#L237-L245) function has been changed to accept user input from `gnlp_ros_srv.py` and return the model response through adding a `sentence` variable. 
 
 #### Implement personality
-`roboys_persona_seq2seq.py` is a slight modification of  `projects/personachat/persona_seq2seq.py` which has Roboys personality integrated in line [1602](https://github.com/Roboy/ParlAI/blob/b9844eaf83b5cb5c0fcb0d00c7fd68dcf28ea7cd/projects/roboy/ros_integration/roboys_persona_seq2seq.py#L1602), an example is shown below. 
+The idea of implementing the personality is that whenever you start interaction with a model, the persona-phrases are already there. This is really straight forward as `roboys_persona_seq2seq.py` is a slight modification of  `projects/personachat/persona_seq2seq.py` which has Roboy's personality integrated in line [1602](https://github.com/Roboy/ParlAI/blob/b9844eaf83b5cb5c0fcb0d00c7fd68dcf28ea7cd/projects/roboy/ros_integration/roboys_persona_seq2seq.py#L1602), an example is shown below. 
 ```
 self.persona_given = 'I am a robot.\nI cant walk.\nI own a tricycle.\n'
 ```
-
 If you want to do changes / add new sentences to `self.persona_given` please keep in mind, that words might be 'out of dict'. If they are not represented in the dict-file coming with the model, they are replaced by the unknown token `__UNK__` before being handed on to the model. That way, if you insert something like `my name is roboy\n` the model will see `my name is __UNK__\n` and will utilize that knowledge with whatever it thinks will fit best, in this case probably a name it has learned before. You can circumvent this by replacing an entry in the dict file. This works best when words are from the same 'intuitive category', so in the example given replace a name you find in the dict file by roboy (*make sure to stick with the appropriate upper-case/lower-case convention*). *!Do not attempt to add an entry to the dict file!* *Do not add too many persona-sentences to the model as the influence every single statement / word has on the softmax will descrease!*
 
 #### How it works together
@@ -118,7 +118,7 @@ source Documents/Roboy/catkin_ws/devel/setup.bash
 roslaunch rosbridge_server rosbridge_websocket.launch
 ```
 ### 5. Update IP adress 
-- in gnlp_ros_srv.py, then launch as in setp 101.2
+- in gnlp_ros_srv.py, then launch as in step 101.2
 
 
 
