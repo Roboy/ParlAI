@@ -23,9 +23,9 @@ async def service_callback():
 
         ### set paths ###
         # Nuke
-        #parlai_home = '/home/roboy/workspace/Roboy/src/ParlAI'
+        parlai_home = '/home/roboy/workspace/Roboy/src/ParlAI'
         # Server
-        parlai_home = '/home/roboy/ws/src/ParlAI'
+        #parlai_home = '/home/roboy/ws/src/ParlAI'
         # local mac
         #parlai_home = '/Users/christoph/Documents/Roboy/ss18_showmaster/ParlAI'
         # vm ubuntu
