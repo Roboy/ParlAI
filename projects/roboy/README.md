@@ -8,6 +8,8 @@ Roboy is using a so-called profilememory neural net, which essentially consists 
 
 You will find something like ...
 
+Pitfalls: Profilememory is the original implementation coming with the personachat dataset. It has been choosen as it can _memorize_ a profile. The idea behind it is to influence outputs in a way where the net acts as it was someone, Roboy in our case of course. According to [ParlAI issue #1066](https://github.com/facebookresearch/ParlAI/issues/1066) the model is not as powerful as other implementations provided by ParlAI. Anyhow, it suits our case. So if you want to win the ConvAI challenge better go for a different one. 
+
 ## 3 - Setup the ParlAI
 ### Prerequisits
 - Python 36 environment
