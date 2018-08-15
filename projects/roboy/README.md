@@ -60,6 +60,7 @@ python projects/convai2/baselines/profilememory/interactive.py
 - The server version runs on ParlAI branch `roboy_server`. 
 - The nuke version runs on ParlAI branch `roboy_nuke`. 
     This mainly concernes paths but is also convenient if you want to make some changes to certain parts only. 
+- Be extremly careful when updating the forked repository. Facebook research informed us that they will remove the profilememory code form `projects/convai2/baselines`. It will still be persistent in `projects/personachat` but might not be compatible with further improvements made. 
 
 ## 6 - Lessons Learned 
 - there are preinstalled packages abailable for the GCloud setup which makes it way smoother
