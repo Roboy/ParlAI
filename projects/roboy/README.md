@@ -57,7 +57,9 @@ python projects/convai2/baselines/profilememory/interactive.py
 ## 5 - Note the ParlAI
 - ParlAI is forked from [facebookresearch/ParlAI](https://github.com/facebookresearch/ParlAI), we do not use their devel branch. 
 - Development is on ParlAI branch `roboy_devel`.
-- The server version runs on ParlAI branch `roboy_server`. (just for testing convenience)
+- The server version runs on ParlAI branch `roboy_server`. 
+- The nuke version runs on ParlAI branch `roboy_nuke`. 
+    This mainly concernes paths but is also convenient if you want to make some changes to certain parts only. 
 
 ## 6 - Lessons Learned 
 - there are preinstalled packages abailable for the GCloud setup which makes it way smoother
