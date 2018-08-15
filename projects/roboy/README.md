@@ -1,12 +1,10 @@
 ## 1 - Why the ParlAI?
-Roboy dialog system essentially is a state machine. A personality file contains several states and what they do. Each state can make use of an optional fallback position. This is triggered when input can not be parsed. Then, input will be redirected to a generative model to create an output. [ParlAI](https://github.com/Roboy/ParlAI/) (pronounced “par-lay”) is the framework behind this generative model, implemented in Python and designed for dialog AI research by Facebook. See their website [http://parl.ai](http://parl.ai) for further docs.
+Roboy dialog system essentially is a state machine. A personality file contains several states and what they do. Each state can make use of an optional fallback position. This is triggered when input can not be parsed. Then, input will be redirected to a generative model to create an output. [ParlAI](https://github.com/Roboy/ParlAI/) (pronounced “par-lay”) is the framework behind this generative model, implemented in Python and designed for dialog AI research by Facebook. See [their website http://parl.ai](http://parl.ai) for further docs.
 
-ParlAI is described in the following paper: [“ParlAI: A Dialog Research Software Platform", arXiv:1705.06476](https://arxiv.org/abs/1705.06476), the dataset used is described in the original [PersonaChat](https://arxiv.org/pdf/1801.07243.pdf) paper.
+ParlAI is described in the following paper: [“ParlAI: A Dialog Research Software Platform"](https://arxiv.org/abs/1705.06476), the dataset used is described in the original [PersonaChat](https://arxiv.org/pdf/1801.07243.pdf) paper. ParlAI is the successor of [Roboy/DeepQA](https://github.com/Roboy/DeepQA).
 
 ## 2- How the ParlAI
-Roboy is using a so-called profilememory neural net, which essentially consists of a sequence to sequence RNN with LSTMs. An attention mechanism is used to influence outputs in a way ... make it Roboy. The sentences given  are "XYZ". If too many personality sentences are specified, the influence of each will decrease and therefore the performance of the model.   
-
-You will find something like ...
+Roboy is using a so-called profilememory network, which essentially consists of a sequence to sequence neural net using LSTMs. An attention mechanism affects outputs with respect to the conversation history. The sentences given are "XYZ". If too many personality sentences are specified, the influence of each will decrease and therefore the performance of the model. 
 
 Pitfalls: Profilememory is the original implementation coming with the personachat dataset. It has been choosen as it can _memorize_ a profile. The idea behind it is to influence outputs in a way where the net acts as it was someone, Roboy in our case of course. According to [ParlAI issue #1066](https://github.com/facebookresearch/ParlAI/issues/1066) the model is not as powerful as other implementations provided by ParlAI. Anyhow, it suits our case. So if you want to win the ConvAI challenge better go for a different one. 
 
@@ -62,7 +60,4 @@ python projects/convai2/baselines/profilememory/interactive.py
     This mainly concernes paths but is also convenient if you want to make some changes to certain parts only. 
 - Be extremly careful when updating the forked repository. Facebook research informed us that they will remove the profilememory code form `projects/convai2/baselines`. It will still be persistent in `projects/personachat` but might not be compatible with further improvements made. 
 
-## 6 - Lessons Learned 
-- there are preinstalled packages abailable for the GCloud setup which makes it way smoother
-- ParlAI is kind of a centralized framework, so functions in /core/ for instance work with all the available datasets and architectures. This entails that changes in totally different parts of the code by one of the contributors can prevent an implementation which used to work just fine for you from running. So think and thoroughly test before you merge!
-- Do not use too many personality phrases.
+
