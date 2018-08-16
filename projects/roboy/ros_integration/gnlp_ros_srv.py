@@ -21,26 +21,17 @@ async def service_callback():
 
         i = 1  # counter for the service request IDs
 
-        ### set paths ###
-        # Nuke
-        #parlai_home = '/home/roboy/workspace/Roboy/src/ParlAI'
-        # Server
-        parlai_home = '/home/roboy/ws/src/ParlAI'
-        # local mac
-        #parlai_home = '/Users/christoph/Documents/Roboy/ss18_showmaster/ParlAI'
-        # vm ubuntu
-        # parlai_home = '/home/christoph/Documents/Roboy/ss18_showmaster/ParlAI'
+        ros_integration_home = os.getcwd()
+        download_path = ros_integration_home + '/../../../downloads'
+        datapath = ros_integration_home + '/../../../data'
 
-        download_path = parlai_home + '/downloads'
-        datapath = parlai_home + '/data'
-
-        model_path = parlai_home + '/data/models/convai2/profilememory/180812_1405'
-        model_file = model_path + '/roboy_profilemem'
-        dict_file = model_path + '/roboy_profilemem.dict'
+        #model_path = ros_integration_home + '/../../../data/models/convai2/profilememory/180812_1405'
+        #model_file = model_path + '/roboy_profilemem'
+        #dict_file = model_path + '/roboy_profilemem.dict'
         
         # Pretrained
-        model_file = parlai_home + '/data/models/convai2/profilememory/profilememory_convai2_model'
-        dict_file = parlai_home + '/data/models/convai2/profilememory/profilememory_convai2.dict'
+        model_file = parlai_home + '/../../../data/models/convai2/profilememory/profilememory_convai2_model'
+        dict_file = parlai_home + '/../../../data/models/convai2/profilememory/profilememory_convai2.dict'
 
         personachat_code = 'projects.roboy.ros_integration.roboys_persona_seq2seq:PersonachatSeqseqAgentSplit'
 
