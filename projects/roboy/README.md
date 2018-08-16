@@ -3,12 +3,20 @@ Roboy dialog system essentially is a state machine. A personality file contains 
 
 ParlAI is described in the following paper: [“ParlAI: A Dialog Research Software Platform"](https://arxiv.org/abs/1705.06476), the dataset used is described in the original [PersonaChat](https://arxiv.org/pdf/1801.07243.pdf) paper. ParlAI is the successor of [Roboy/DeepQA](https://github.com/Roboy/DeepQA).
 
-## 2- How the ParlAI
-Roboy is using a so-called profilememory network, which essentially consists of a sequence to sequence neural net using LSTMs. An attention mechanism affects outputs with respect to the conversation history. The sentences given are "XYZ". If too many personality sentences are specified, the influence of each will decrease and therefore the performance of the model. 
+Roboy is using a so-called profilememory network, which essentially consists of a sequence to sequence neural net using LSTMs. An attention mechanism affects outputs with respect to the conversation history. Furthermore, a consistent personality can be included which also affects outputs. 
 
 Pitfalls: Profilememory is the original implementation coming with the personachat dataset. It has been choosen as it can _memorize_ a profile. The idea behind it is to influence outputs in a way where the net acts as it was someone, Roboy in our case of course. According to [ParlAI issue #1066](https://github.com/facebookresearch/ParlAI/issues/1066) the model is not as powerful as other implementations provided by ParlAI. Anyhow, it suits our case. So if you want to win the ConvAI challenge better go for a different one. 
 
-## 3 - Setup the ParlAI
+
+The three major advantages of the profilmemory implementation over the previous DeepQA implementation are:
+
+- DeepQA consists of a pure seq2seq model, so it would give the exact same reply to a specific input observed. Profilememory takes the conversational history into account through attention.
+- Through integrating a consistent personality to influence the softmax layer, we are also able to keep Roboy more ... even in its fallback sate. 
+- The personachat dataset is originating from actual conversations humans had with each other. This results in a more realistic chitchat in comparison to the DeepQA implementation as that was trained on a movie subtitle database resulting in a very dramatic behavior of the model. 
+
+
+
+## 2 - How the ParlAI
 ### Prerequisits
 - Python 36 environment
 - pip3
@@ -45,19 +53,19 @@ pip install -r requirements.txt
 - jupyter
 - matplotlib
 
-## 4 - Try the ParlAI
+## 3 - Try the ParlAI
 
 To interact with a pretrained profilememory model (downloaded from model zoo), in `ParlAI` folder run:
 ```
 python projects/convai2/baselines/profilememory/interactive.py 
 ```
 
-## 5 - Note the ParlAI
+## 4 - Note the ParlAI
 - ParlAI is forked from [facebookresearch/ParlAI](https://github.com/facebookresearch/ParlAI), we do not use their devel branch. 
 - Development is on ParlAI branch `roboy_devel`.
 - The server version runs on ParlAI branch `roboy_server`. 
 - The nuke version runs on ParlAI branch `roboy_nuke`. 
     This mainly concernes paths but is also convenient if you want to make some changes to certain parts only. 
-- Be extremly careful when updating the forked repository. Facebook research informed us that they will remove the profilememory code form `projects/convai2/baselines`. It will still be persistent in `projects/personachat` but might not be compatible with further improvements made. 
+- As of August 16th, 2018, ParlAI has ropped support for the profilememory implementation in the ConvAI2 challenge and removed the code from the `projects/convai2/baselines/profilememory/` directory. However, we want to use the convai2 personachat dataset as it contains more samples than the original personachat (`projects/personachat`) implementation. The good news is, the personachat implementation will still be supported, just not in the scope of the ConvAI2 challenge. So implementations in `projects/personachat` will be kept updated. The thing we need to care about is the dataset, which is integrated through setting `task='convai2:self'` in the training script. A copy of the contents of the `projects/convai2/baselines/profilememory` directory is in `projects/roboy/profilememory/`. 
 
 
