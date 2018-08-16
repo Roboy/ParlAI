@@ -56,7 +56,7 @@ async def service_callback():
                 'personachat_guidesoftmax': False, 'personachat_newsetting': '', 'personachat_interact': False, \
                 'personachat_pdmn': False, 'personachat_tfidfperp': False, 'personachat_learnreweight': True, \
                 'personachat_embshareonly_pm_dec': False, 'personachat_s2sinit': False, 'interactive_mode': True, \
-                'use_persona': 'self', 'parlai_home': parlai_home, 'override': {}, \
+                'use_persona': 'self', 'parlai_home': ros_integration_home + '/../../../', 'override': {}, \
                 'starttime': 'Jun15_16-58'}
         opt['model_type'] = 'profilememory' # for builder
 
