@@ -1,4 +1,7 @@
 # /bin/bash
+roscd # lands to catkin_ws/devel
+cd ../src/ParlAI
+
 export PYTHONPATH=
 
 ## get this to point to venv for ParlAI
