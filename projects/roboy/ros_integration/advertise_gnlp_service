@@ -5,6 +5,6 @@ cd ../src/ParlAI
 #export PYTHONPATH=
 
 ## get this to point to venv for ParlAI
-source venv_ParlAI/bin/activate
+source virtualenv/bin/activate
 
 python projects/roboy/ros_integration/gnlp_ros_srv.py
