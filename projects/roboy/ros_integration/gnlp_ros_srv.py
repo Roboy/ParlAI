@@ -22,16 +22,16 @@ async def service_callback():
         i = 1  # counter for the service request IDs
 
         ros_integration_home = os.getcwd()
-        download_path = ros_integration_home + '/../../../downloads'
-        datapath = ros_integration_home + '/../../../data'
+        download_path = ros_integration_home + '/downloads'
+        datapath = ros_integration_home + '/data'
 
-        #model_path = ros_integration_home + '/../../../data/models/convai2/profilememory/180812_1405'
+        #model_path = ros_integration_home + '/data/models/convai2/profilememory/180812_1405'
         #model_file = model_path + '/roboy_profilemem'
         #dict_file = model_path + '/roboy_profilemem.dict'
 
         # Pretrained
-        model_file = ros_integration_home + '/../../../data/models/convai2/profilememory/profilememory_convai2_model'
-        dict_file = ros_integration_home + '/../../../data/models/convai2/profilememory/profilememory_convai2.dict'
+        model_file = ros_integration_home + '/data/models/convai2/profilememory/profilememory_convai2_model'
+        dict_file = ros_integration_home + '/data/models/convai2/profilememory/profilememory_convai2.dict'
 
         personachat_code = 'projects.roboy.ros_integration.roboys_persona_seq2seq:PersonachatSeqseqAgentSplit'
 

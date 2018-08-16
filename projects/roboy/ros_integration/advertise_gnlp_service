@@ -1,5 +1,10 @@
 # /bin/bash
-roscd # lands to catkin_ws/devel
+
+#roslaunch rosbridge_server rosbridge_websocket.launch port:=9090 &
+source /home/roboy/.bashrc
+
+cd /home/roboy/ws/devel 
+
 cd ../src/ParlAI
 
 #export PYTHONPATH=
