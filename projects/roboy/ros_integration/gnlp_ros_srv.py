@@ -30,8 +30,8 @@ async def service_callback():
         #dict_file = model_path + '/roboy_profilemem.dict'
 
         # Pretrained
-        model_file = parlai_home + '/../../../data/models/convai2/profilememory/profilememory_convai2_model'
-        dict_file = parlai_home + '/../../../data/models/convai2/profilememory/profilememory_convai2.dict'
+        model_file = ros_integration_home + '/../../../data/models/convai2/profilememory/profilememory_convai2_model'
+        dict_file = ros_integration_home + '/../../../data/models/convai2/profilememory/profilememory_convai2.dict'
 
         personachat_code = 'projects.roboy.ros_integration.roboys_persona_seq2seq:PersonachatSeqseqAgentSplit'
 
