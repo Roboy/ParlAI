@@ -7,7 +7,6 @@ Roboy is using a so-called profilememory network, which essentially consists of 
 
 Pitfalls: Profilememory is the original implementation coming with the personachat dataset. It has been choosen as it can _memorize_ a profile. The idea behind it is to influence outputs in a way where the net acts as it was someone, Roboy in our case of course. According to [ParlAI issue #1066](https://github.com/facebookresearch/ParlAI/issues/1066) the model is not as powerful as other implementations provided by ParlAI. Anyhow, it suits our case. So if you want to win the ConvAI challenge better go for a different one. 
 
-
 The three major advantages of the profilmemory implementation over the previous DeepQA implementation are:
 
 - DeepQA consists of a pure seq2seq model, so it would give the exact same reply to a specific input observed. Profilememory takes the conversational history into account through attention.
@@ -20,8 +19,9 @@ The three major advantages of the profilmemory implementation over the previous 
 ### Prerequisits
 - Python 36 environment
 - pip3
+- for instance, [follow this guide on Ubuntu 16.04](https://www.caseylabs.com/how-to-create-a-python-3-6-virtual-environment-on-ubuntu-16-04/)
 
-### Installing ParlAI
+### Installing the ParlAI
 Go to the folder you want to have ParlAI in and run the following commands to clone the repository and install ParlAI:
 ```
 git clone https://github.com/Roboy/ParlAI.git
@@ -37,7 +37,7 @@ This will link the cloned directory to your site-packages and is the recommended
 All needed data will be downloaded to ~/ParlAI/data, and any non-data files (such as the MemNN code) if requested will be downloaded to ~/ParlAI/downloads. If you need to clear out the space used by these files, you can safely delete these directories and any files needed will be downloaded again. 
 
 ### Further requirements
-ParlAI does not install all requirements in setup, some are hidden in the code. For each use case get the following modules as well:
+ParlAI does not install all requirements in setup, some are hidden in the code. For each use case get the following modules as well for the profilememory:
 
 #### Interacting
 - [PyTorch](http://pytorch.org/)
@@ -63,9 +63,7 @@ python projects/convai2/baselines/profilememory/interactive.py
 ## 4 - Note the ParlAI
 - ParlAI is forked from [facebookresearch/ParlAI](https://github.com/facebookresearch/ParlAI), we do not use their devel branch. 
 - Development is on ParlAI branch `roboy_devel`.
-- The server version runs on ParlAI branch `roboy_server`. 
-- The nuke version runs on ParlAI branch `roboy_nuke`. 
-    This mainly concernes paths but is also convenient if you want to make some changes to certain parts only. 
-- As of August 16th, 2018, ParlAI has ropped support for the profilememory implementation in the ConvAI2 challenge and removed the code from the `projects/convai2/baselines/profilememory/` directory. However, we want to use the convai2 personachat dataset as it contains more samples than the original personachat (`projects/personachat`) implementation. The good news is, the personachat implementation will still be supported, just not in the scope of the ConvAI2 challenge. So implementations in `projects/personachat` will be kept updated. The thing we need to care about is the dataset, which is integrated through setting `task='convai2:self'` in the training script. A copy of the contents of the `projects/convai2/baselines/profilememory` directory is in `projects/roboy/profilememory/`. 
+- The nuke version runs on ParlAI branch `roboy_nuke`. This mainly concernes paths but is also convenient if you want to make some changes to certain parts only. 
+- As of August 16th, 2018, ParlAI has ropped support for the profilememory implementation in the ConvAI2 challenge and removed the code from the `projects/convai2/baselines/profilememory/` directory. However, we want to use the convai2 personachat dataset as it contains more samples than the original personachat (`projects/personachat`) implementation. The good news is, the personachat implementation will still be supported, just not in the scope of the ConvAI2 challenge. So implementations in `projects/personachat` will be kept updated. The thing we need to care about is the dataset, which is integrated through setting `task='convai2:self'` in the training script. A copy of the contents of the `projects/convai2/baselines/profilememory` directory is in `projects/roboy/profilememory/`. If you update the fork make sure to mind the reversed bug fix in [ParlAI issue #1069](https://github.com/facebookresearch/ParlAI/pull/1069), where the profilememory-function had to be removed to reproduce previous training scores. 
 
 

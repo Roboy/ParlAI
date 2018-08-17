@@ -1,31 +1,30 @@
 # Training
 
 ## Background ParlAI Training
-There are many many options and arguments, your best source to get an overview is the shell script [./train_script.sh](https://github.com/Roboy/ParlAI/blob/master/projects/roboy/train/roboy_train_profilememory.sh) or the according ParlAI functions.
+There are many many options and arguments, your best source to get an overview is the shell script [./train_script.sh](https://github.com/Roboy/ParlAI/blob/master/projects/roboy/train/train_script.sh) or the according ParlAI functions.
 ### Training Options
 - define a timeframe in which to train
 - define a number of epochs to train
 - PATIENCE: when the validation accuracy doesn't improve X times in a row training is considered complete.
 ### Pre-trained models & fine-tuning
-- There are pre-trained models available through model zoo. However, they have been trained using a different implementation and are not really compatible to what is there now. Training from scratch does not hurt and one gets decent results within 10 epochs or so. 
-
+- There are pre-trained models available through model zoo. However, they have been trained using a different implementation and are not compatible to what is there now. Furthermore, they are not reproducible. Training from scratch goes quite smooth and one gets decent results within a few epochs (depending on number of parameters, regularization etc...). 
 
 ## How To: Set up training
-- go to shell script in ss18_showmaster/ParlAI/projects/roboy/train/
+- go to shell script in /ParlAI/projects/roboy/train/
 - set your hyper parameters
-- if batches are too large you will run into CUDA memory errors (-bs up to 128 works on P100, -bs 64 for K80)
-- add, commit, push changes to ParlAI git
+- if batches are too large, too many layers, to big hidden size etc.., you will run into CUDA memory errors (-bs up to 128 works on P100, -bs 64 for K80)
+- When training, pyrameters have been pushed through git for tracability but you can of course edit stuff right on the GCP.
 
 ## How To: Train
 - [Boot ubuntu1604uswest1b VM instance on GCP](https://console.cloud.google.com/compute/ )
 - Click SSH to open new shell in browser (alternatively, install gcloud command line tools on local machine)
-- go to ParlAI and pull
 - do: $ screen (you need to install [screen](https://www.howtogeek.com/howto/ubuntu/keep-your-ssh-session-running-when-you-disconnect/) first)
+- go to ParlAI and pull
 - activate virtual environment 
 ```
 source ~/venvParlAI36/bin/activate
 ```
-- run shell script from ss18_showmaster/ParlAI/projects/roboy/train/
+- run shell script from ParlAI/projects/roboy/train/
 - log-file will be saved to path defined in shell script
 - model will be saved to /tmp/
 - Press Ctrl+a, Ctrl+d in quick sequence -> screen is now detached
