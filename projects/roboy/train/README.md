@@ -6,14 +6,14 @@ There are many many options and arguments, your best source to get an overview i
 - define a timeframe in which to train
 - define a number of epochs to train
 - PATIENCE: when the validation accuracy doesn't improve X times in a row training is considered complete.
-### Pre-trained models & fine-tuning
-- There are pre-trained models available through model zoo. However, they have been trained using a different implementation and are not compatible to what is there now. Furthermore, they are not reproducible. Training from scratch goes quite smooth and one gets decent results within a few epochs (depending on number of parameters, regularization etc...). 
+### Pre-trained models
+There are pre-trained models available through model zoo. However, they have been trained using a different implementation and are not compatible to what is there now. Furthermore, they are not reproducible. Training from scratch goes quite smooth and one gets decent results within a few epochs (depending on number of parameters, regularization etc...). 
 
 ## How To: Set up training
 - go to shell script in /ParlAI/projects/roboy/train/
 - set your hyper parameters
-- if batches are too large, too many layers, to big hidden size etc.., you will run into CUDA memory errors (-bs up to 128 works on P100, -bs 64 for K80)
-- When training, pyrameters have been pushed through git for tracability but you can of course edit stuff right on the GCP.
+- if batches are too large, too many layers, to big hidden size etc.., you will run into CUDA memory errors
+- When training, parmeters have been pushed through git for keeping track of them easier, but you can of course edit stuff right on the GCP.
 
 ## How To: Train
 - [Boot ubuntu1604uswest1b VM instance on GCP](https://console.cloud.google.com/compute/ )
@@ -50,15 +50,11 @@ gcloud compute scp --recurse team_roboy@ubuntu1604uswest1b:~/ss18_showmaster/Par
 ```
 gcloud compute scp --recurse team_roboy@ubuntu1604uswest1b:/tmp/ ~/Desktop
 ```
-- to interactively test a model you can use 
+- to interactively test a model you can use, using appropriate flags
 ```
-python projects/convai2/baselines/profilememory/interactive.py 
+python projects/convai2/baselines/profilememory/interactive.py --model-file [path]/roboy_profilemem --dict-file [path]/roboy_profilemem.dict --attention general --personachat-useprevdialog
 ```
-using the appropriate falgs such as
-```
-python projects/convai2/baselines/profilememory/interactive.py --model-file [path]/roboy_profilemem --dict-file [path]/roboy_profilemem.dict
-```
-- shut down the computing engine after training, otherwise Roboy will still be charged. (depending on setup, between ~$1.50/h and ~$3/h)
+- shut down the computing engine after training, otherwise Roboy will still be charged. (between ~$1.50/h and ~$3/h, depending on setup)
 
 # About GCloud Compute Engine
 ## Set up
