@@ -10,6 +10,9 @@ __pycache__/
 # C extensions
 *.so
 
+# venv
+/virtualenv/*
+
 # Distribution / packaging
 .Python
 .vector_cache/
