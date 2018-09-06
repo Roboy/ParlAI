@@ -5,12 +5,12 @@ ParlAI is described in the following paper: [“ParlAI: A Dialog Research Softwa
 
 Roboy is using a so-called profilememory network, which essentially consists of a sequence to sequence neural net using LSTMs. An attention mechanism affects outputs with respect to the conversation history. Furthermore, a consistent personality can be included which also affects outputs. 
 
-Pitfalls: Profilememory is the original implementation coming with the personachat dataset. It has been choosen as it can _memorize_ a profile. The idea behind it is to influence outputs in a way where the net acts as it was someone, Roboy in our case of course. According to [ParlAI issue #1066](https://github.com/facebookresearch/ParlAI/issues/1066) the model is not as powerful as other implementations provided by ParlAI. Anyhow, it suits our case. So if you want to win the ConvAI challenge better go for a different one. 
+Pitfalls: Profilememory is the original implementation coming with the personachat dataset. It has been choosen as it can _memorize_ a profile. The idea behind it is to constantly influence the nets outputs in addition to the attention mechanism which considers the converstional history. This way, the net can act as if it was somebody, Roboy in our case. According to [ParlAI issue #1066](https://github.com/facebookresearch/ParlAI/issues/1066), the model is not as powerful as other implementations provided by ParlAI. Anyhow, it suits our case. If you want to win the ConvAI challenge however, better go for a different model.
 
 The three major advantages of the profilmemory implementation over the previous DeepQA implementation are:
 
 - DeepQA consists of a pure seq2seq model, so it would give the exact same reply to a specific input observed. Profilememory takes the conversational history into account through attention.
-- Through integrating a consistent personality to influence the softmax layer, we are also able to keep Roboy more ... even in its fallback sate. 
+- Through integrating a consistent personality to influence the softmax layer, we are also able to keep Roboy more itself even in its fallback sate. 
 - The personachat dataset is originating from actual conversations humans had with each other. This results in a more realistic chitchat in comparison to the DeepQA implementation as that was trained on a movie subtitle database resulting in a very dramatic behavior of the model. 
 
 
