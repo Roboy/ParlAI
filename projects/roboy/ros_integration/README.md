@@ -5,8 +5,8 @@
 - [Catkin Workspace](https://github.com/Roboy)
 
 ### Model
-- which model to use is specified in `ParlAI/projects/roboy/ros_integration/gnlp_ros_srv.py`. Ideally, you only need to adapt the `parlai_home` and `model_path` variables to point to a model. 
-- if you start from scratch, you can get a model from the model zoo. From scratch, the easiest way to achieve this is to run `python projects/convai2/baselines/profilememory/interactive.py`. Then, adapth paths accordingly. If stuff doesn't work out the way you want it to, there is a `ROS_Test` jupyter notebook you can use for debugging. 
+- Which model to use is specified in `ParlAI/projects/roboy/ros_integration/gnlp_ros_srv.py`. Ideally, you only need to adapt the `parlai_home` and `model_path` variables to point to a model. 
+- If you start from scratch, you can get a model from the model zoo. The easiest way to achieve this is to run `python projects/convai2/baselines/profilememory/interactive.py`. Then, adapth paths accordingly. If stuff doesn't work out the way you want it to, there is a `ROS_Test` jupyter notebook you can use for debugging. 
 
 # How to use it
 
