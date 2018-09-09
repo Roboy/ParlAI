@@ -5,8 +5,8 @@
 - [Catkin Workspace](https://github.com/Roboy)
 
 ### Model
-- which model to use is specified in `ParlAI/projects/roboy/ros_integration/gnlp_ros_srv.py`. Ideally, you only need to adapt the `parlai_home` and `model_path` variables to point to a model. 
-- if you start from scratch, you can get a model from the model zoo. From scratch, the easiest way to achieve this is to run `python projects/convai2/baselines/profilememory/interactive.py`. Then, adapth paths accordingly. If stuff doesn't work out the way you want it to, there is a `ROS_Test` jupyter notebook you can use for debugging. 
+- Which model to use is specified in `ParlAI/projects/roboy/ros_integration/gnlp_ros_srv.py`. Ideally, you only need to adapt the `parlai_home` and `model_path` variables to point to a model. 
+- If you start from scratch, you can get a model from the model zoo. The easiest way to achieve this is to run `python projects/convai2/baselines/profilememory/interactive.py`. Then, adapth paths accordingly. If stuff doesn't work out the way you want it to, there is a `ROS_Test` jupyter notebook you can use for debugging. 
 
 # How to use it
 
@@ -111,7 +111,7 @@ If you want to do changes / add new sentences to `self.persona_given` please kee
 - *Do not attempt to add an entry to the dict file!* 
 - *Do not add too many persona-sentences to the model as the influence every single statement / word has on the softmax will descrease!*
 
-### How it works together
+### Combining the forces ... you must!
 The main script for the ROS-integration essentially is a modification of the [earlier used implementation](https://github.com/Roboy/DeepQA/blob/master/gnlp_ros_srv.py). [Setup is hard-coded](https://github.com/Roboy/ParlAI/blob/fc5fe7540dedf993765522a9fa88ca0bec7037d1/projects/roboy/ros_integration/gnlp_ros_srv.py#L39-L57) as extractet from `opt`-variable in [`profilememory/interactive.py`](https://github.com/Roboy/ParlAI/blob/roboy_devel/projects/convai2/baselines/profilememory/interactive.py). 
 [Lines 41 to 45 of `parlai/scripts/interactive.py`](https://github.com/Roboy/ParlAI/blob/fc5fe7540dedf993765522a9fa88ca0bec7037d1/parlai/scripts/interactive.py#L41-L45) form the basis of `gnlp_ros_service.py` as can be seen below. 
 ```

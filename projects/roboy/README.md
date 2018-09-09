@@ -5,13 +5,13 @@ ParlAI is described in the following paper: [“ParlAI: A Dialog Research Softwa
 
 Roboy is using a so-called profilememory network, which essentially consists of a sequence to sequence neural net using LSTMs. An attention mechanism affects outputs with respect to the conversation history. Furthermore, a consistent personality can be included which also affects outputs. 
 
-Pitfalls: Profilememory is the original implementation coming with the personachat dataset. It has been choosen as it can _memorize_ a profile. The idea behind it is to influence outputs in a way where the net acts as it was someone, Roboy in our case of course. According to [ParlAI issue #1066](https://github.com/facebookresearch/ParlAI/issues/1066) the model is not as powerful as other implementations provided by ParlAI. Anyhow, it suits our case. So if you want to win the ConvAI challenge better go for a different one. 
+Pitfalls: Profilememory is the original implementation coming with the personachat dataset. It has been choosen as it can _memorize_ a profile. The idea behind it is to constantly influence the nets outputs in addition to the attention mechanism which considers the converstional history. This way, the net can act as if it was somebody, Roboy in our case. According to [ParlAI issue #1066](https://github.com/facebookresearch/ParlAI/issues/1066), the model is not as powerful as other implementations provided by ParlAI. Anyhow, it suits our case. If you want to win the ConvAI challenge however, better go for a different model.
 
 The three major advantages of the profilmemory implementation over the previous DeepQA implementation are:
 
 - DeepQA consists of a pure seq2seq model, so it would give the exact same reply to a specific input observed. Profilememory takes the conversational history into account through attention.
-- Through integrating a consistent personality to influence the softmax layer, we are also able to keep Roboy more ... even in its fallback sate. 
-- The personachat dataset is originating from actual conversations humans had with each other. This results in a more realistic chitchat in comparison to the DeepQA implementation as that was trained on a movie subtitle database resulting in a very dramatic behavior of the model. 
+- Through integrating a consistent personality to influence the softmax layer, we are also able to keep Roboy more itself even in its fallback sate. 
+- The personachat dataset is originating from actual chat conversations amongst humans. This results in a more realistic chitchat capability in comparison to the DeepQA implementation. The latter one was trained on a movie subtitle database, resulting in a very dramatic behavior of the model. 
 
 
 
@@ -63,7 +63,7 @@ python projects/convai2/baselines/profilememory/interactive.py
 ## 4 - Note the ParlAI
 - ParlAI is forked from [facebookresearch/ParlAI](https://github.com/facebookresearch/ParlAI), we do not use their devel branch. 
 - Development is on ParlAI branch `roboy_devel`.
-- The nuke version runs on ParlAI branch `roboy_nuke`. This mainly concernes paths but is also convenient if you want to make some changes to certain parts only. 
+- The nuke version runs on ParlAI branch `roboy_nuke`. This mainly concernes paths. 
 - As of August 16th, 2018, ParlAI has ropped support for the profilememory implementation in the ConvAI2 challenge and removed the code from the `projects/convai2/baselines/profilememory/` directory. However, we want to use the convai2 personachat dataset as it contains more samples than the original personachat (`projects/personachat`) implementation. The good news is, the personachat implementation will still be supported, just not in the scope of the ConvAI2 challenge. So implementations in `projects/personachat` will be kept updated. The thing we need to care about is the dataset, which is integrated through setting `task='convai2:self'` in the training script. A copy of the contents of the `projects/convai2/baselines/profilememory` directory is in `projects/roboy/profilememory/`. If you update the fork make sure to mind the reversed bug fix in [ParlAI issue #1069](https://github.com/facebookresearch/ParlAI/pull/1069), where the profilememory-function had to be removed to reproduce previous training scores. 
 
 
