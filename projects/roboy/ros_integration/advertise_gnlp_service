@@ -1,7 +1,15 @@
 # /bin/bash
-export PYTHONPATH=
+
+#roslaunch rosbridge_server rosbridge_websocket.launch port:=9090 &
+source /home/roboy/.bashrc
+
+cd /home/roboy/ws/devel 
+
+cd ../src/ParlAI
+
+#export PYTHONPATH=
 
 ## get this to point to venv for ParlAI
-source /home/roboy/workspace/venv_ParlAI/bin/activate
+source virtualenv/bin/activate
 
-python /home/roboy/workspace/Roboy/src/ParlAI/projects/roboy/ros_integration/gnlp_ros_srv.py
+python projects/roboy/ros_integration/gnlp_ros_srv.py
