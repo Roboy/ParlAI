@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -104,10 +106,12 @@ class PersonasGenerator(object):
         self.personas_idx_stack_path = os.path.join(os.getcwd(),
                                                     './personas_idx_stack.pkl')
 
-        self.personas_path = '{}/data/personas-{}'.format(
-                             os.getcwd(),
-                             opt['persona_type'] +
-                                'Revised' if opt['revised'] else 'Original')
+        self.personas_path = (
+            '{}/data/personas-{}'.format(
+                os.getcwd(),
+                opt['persona_type'] + 'Revised' if opt['revised'] else 'Original'
+            )
+        )
         if not os.path.exists(self.personas_path):
             opt['personas_path'] = self.personas_path
             main_extract(opt)
@@ -203,6 +207,7 @@ class Convai2EvalWorld(MultiAgentDialogWorld):
                  world_tag='',
                  agent_timeout_shutdown=120):
         self.turn_idx = 0
+        self.hit_id = None
         self.range_turn = range_turn
         self.max_turn = max_turn
         self.n_turn = np.random.randint(
@@ -261,8 +266,8 @@ class Convai2EvalWorld(MultiAgentDialogWorld):
                                     '{}\n</span></b>'.format(s.strip())
                 control_msg['persona_text'] = persona_text
                 control_msg['text'] = self.get_instruction(
-                                            tag='start',
-                                            agent_id=agent.id)
+                    tag='start', agent_id=agent.id
+                )
                 agent.observe(validate(control_msg))
                 if idx == 0:
                     time.sleep(3)
@@ -289,8 +294,10 @@ class Convai2EvalWorld(MultiAgentDialogWorld):
             if acts[idx]['text'] == 'PERSONA':
                 _text = ''
                 for s in agent.model_persona[1]['persona']:
-                    _text += '<b><span style="color:blue">' + s.strip() + \
-                            '</span></b><br>'
+                    _text += (
+                        '<b><span style="color:blue">' + s.strip() +
+                        '</span></b><br>'
+                    )
                 control_msg['text'] = 'The model persona is: \n' + _text
                 agent.observe(control_msg)
                 return
@@ -300,7 +307,7 @@ class Convai2EvalWorld(MultiAgentDialogWorld):
 
             if acts[idx]['episode_done']:
                 print("Finished chat")
-                self.check_timeout(acts[idx])
+                self.check_disconnects(acts[idx])
                 for ag in self.agents:
                     if ag != agent and ag.some_agent_disconnected:
                         control_msg['text'] = UNEXPECTED_DISCONNECTION_MSG
@@ -431,7 +438,7 @@ class Convai2EvalWorld(MultiAgentDialogWorld):
                         if 'text' in acts[idx] and \
                                 acts[idx]['text'] in ['1', '2']:
                             self.persona_picked[idx] = \
-                                cand_text[int(acts[idx]['text'])-1][0]
+                                cand_text[int(acts[idx]['text']) - 1][0]
 
                     # reached the end of the chat
                     self.chat_done = True
@@ -453,8 +460,8 @@ class Convai2EvalWorld(MultiAgentDialogWorld):
         act = self.model_agent.act()
 
         # NOTE: model agent may or may not need to observe itself here,
-        # depending on how your model handles this
-        self.model_agent.observe(act)
+        # depending on how your model handles this, uncomment for that
+        # self.model_agent.observe(act)
 
         acts.append({'text': act['text']})
 
@@ -540,6 +547,8 @@ class Convai2EvalWorld(MultiAgentDialogWorld):
         pickle.dump({'personas': self.personas,
                      'dialog': self.dialog,
                      'workers': [ag.worker_id for ag in self.agents],
+                     'hit_id': [ag.hit_id for ag in self.agents],
+                     'assignment_id': [ag.assignment_id for ag in self.agents],
                      'bad_workers': bad_workers,
                      'n_turn': self.n_turn,
                      'fluency_score': self.fluency_score,
@@ -567,8 +576,8 @@ class Convai2EvalWorld(MultiAgentDialogWorld):
                 for r_w in regular_words:
                     if r_w in per_parse:
                         per_parse.remove(r_w)
-                per_subseq = [' '.join(per_parse[i:i+len(per_parse) -
-                                       tolerance]) for i in range(tolerance+1)]
+                per_subseq = [' '.join(per_parse[i:i + len(per_parse) -
+                                       tolerance]) for i in range(tolerance + 1)]
                 for pp in per_subseq:
                     if pp in ['', ' ', '  ', '   ']:
                         per_subseq.remove(pp)
@@ -604,8 +613,12 @@ class Convai2EvalWorld(MultiAgentDialogWorld):
             self.range_turn[1]
         ) + 1
 
-    def check_timeout(self, act):
-        if act['text'] == '[TIMEOUT]' and act['episode_done']:
+    def check_disconnects(self, act):
+        if (
+            act['text'] == '[TIMEOUT]' or
+            act['text'] == '[RETURNED]' or
+            act['text'] == '[DISCONNECT]'
+        ):
             control_msg = {'episode_done': True}
             control_msg['id'] = 'SYSTEM'
             control_msg['text'] = self.get_instruction(

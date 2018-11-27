@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -7,10 +9,7 @@
 import math
 import torch
 import torch.nn as nn
-from torch.nn.parameter import Parameter
-from torch.autograd import Variable,Function
-from torch.nn.utils.rnn import pad_packed_sequence, pack_padded_sequence
-import torch.nn.functional as F
+from torch.autograd import Variable
 
 class Kvmemnn(nn.Module):
     def __init__(self, opt, num_features, dict):
@@ -43,8 +42,6 @@ class Kvmemnn(nn.Module):
             self.cosineEmbedding = False
             
     def forward(self, xs, mems, ys=None, cands=None):
-        scores = None
-
         xs_enc = []
         xs_emb = self.encoder(xs)
 
@@ -94,7 +91,6 @@ class Kvmemnn(nn.Module):
             # test
             if self.cosineEmbedding:
                 ys_enc = []
-                c_scores = []
                 for c in cands:
                     xs_enc.append(lhs_emb)
                     c_emb = self.encoder2(c)

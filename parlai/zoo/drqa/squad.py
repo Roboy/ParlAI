@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -12,5 +14,5 @@ from parlai.core.build_data import download_models
 def download(datapath):
     opt = {'datapath': datapath}
     fnames = ['squad_fasttextcc.tgz']
-    opt['model_type'] = 'squad' # for builder
+    opt['model_type'] = 'squad'  # for builder
     download_models(opt, fnames, 'drqa', use_model_type=True, version='v2.0')

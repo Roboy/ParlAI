@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -54,26 +56,38 @@ def _exact_match(guess, answers):
     return False
 
 
-def _f1_score(guess, answers):
-    """Return the max F1 score between the guess and any answer."""
-    def _score(g_tokens, a_tokens):
-        common = Counter(g_tokens) & Counter(a_tokens)
-        num_same = sum(common.values())
-        if num_same == 0:
-            return 0
-        precision = 1.0 * num_same / len(g_tokens)
-        recall = 1.0 * num_same / len(a_tokens)
-        f1 = (2 * precision * recall) / (precision + recall)
-        return f1
+def _prec_recall_f1_score(pred_items, gold_items):
+    """
+    Computes precision, recall and f1 given a set of gold and prediction items.
 
+    :param pred_items: iterable of predicted values
+    :param gold_items: iterable of gold values
+
+    :return: tuple (p, r, f1) for precision, recall, f1
+    """
+    common = Counter(gold_items) & Counter(pred_items)
+    num_same = sum(common.values())
+    if num_same == 0:
+        return 0, 0, 0
+    precision = 1.0 * num_same / len(pred_items)
+    recall = 1.0 * num_same / len(gold_items)
+    f1 = (2 * precision * recall) / (precision + recall)
+    return precision, recall, f1
+
+
+def _f1_score(guess, answers):
+    """Return the max F1 score between the guess and *any* answer."""
     if guess is None or answers is None:
         return 0
     g_tokens = normalize_answer(guess).split()
-    scores = [_score(g_tokens, normalize_answer(a).split()) for a in answers]
-    return max(scores)
+    scores = [
+        _prec_recall_f1_score(g_tokens, normalize_answer(a).split())for a in answers
+    ]
+    return max(f1 for p, r, f1 in scores)
 
 
 def _bleu(guess, answers):
+    """Compute approximate BLEU score between guess and a set of answers."""
     if nltkbleu is None:
         # bleu library not installed, just return a default value
         return None
@@ -91,7 +105,7 @@ def _bleu(guess, answers):
 
 
 def aggregate_metrics(reporters):
-    #reporters is a list of teachers or worlds
+    # reporters is a list of teachers or worlds
     m = {}
     m['tasks'] = {}
     sums = {'accuracy': 0, 'f1': 0, 'loss': 0, 'ppl': 0}
@@ -198,8 +212,6 @@ class Metrics(object):
         if text_cands is None:
             return
         else:
-            text = observation.get('text', None)
-
             # Now loop through text candidates, assuming they are sorted.
             # If any of them is a label then score a point.
             # maintain hits@1, 5, 10, 50, 100,  etc.
@@ -285,15 +297,27 @@ class Metrics(object):
         m['exs'] = total
         if total > 0:
             if self.flags['print_prediction_metrics']:
-                m['accuracy'] = round_sigfigs(self.metrics['correct'] / max(1, self.metrics['correct_cnt']), 4)
-                m['f1'] = round_sigfigs(self.metrics['f1'] / max(1, self.metrics['f1_cnt']), 4)
+                m['accuracy'] = round_sigfigs(
+                    self.metrics['correct'] / max(1, self.metrics['correct_cnt']),
+                    4
+                )
+                m['f1'] = round_sigfigs(
+                    self.metrics['f1'] / max(1, self.metrics['f1_cnt']),
+                    4
+                )
                 if self.flags['has_text_cands']:
                     for k in self.eval_pr:
                         m['hits@' + str(k)] = round_sigfigs(
-                            self.metrics['hits@' + str(k)] / max(1, self.metrics['hits@_cnt']), 3)
+                            self.metrics['hits@' + str(k)] /
+                            max(1, self.metrics['hits@_cnt']),
+                            3
+                        )
             for k in self.metrics_list:
                 if self.metrics[k + '_cnt'] > 0 and k != 'correct' and k != 'f1':
-                    m[k] = round_sigfigs(self.metrics[k] / max(1, self.metrics[k + '_cnt']), 4)
+                    m[k] = round_sigfigs(
+                        self.metrics[k] / max(1, self.metrics[k + '_cnt']),
+                        4
+                    )
         return m
 
     def clear(self):

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree. An additional grant
 # of patent rights can be found in the PATENTS file in the same directory.
@@ -7,7 +9,14 @@ import torch.nn.functional as F
 import torch
 
 from .gru import BayesianGRU
-from .loadstates import *
+from .loadstates import (
+    load_dictionary,
+    load_emb_params,
+    make_emb_state_dict,
+    load_rnn_params,
+    make_bayesian_state_dict,
+    make_gru_state_dict,
+)
 
 
 class Mlb(nn.Module):
@@ -20,10 +29,12 @@ class Mlb(nn.Module):
         self.vocab_answers = self.dict.ans2ind.keys()
         self.num_classes = len(self.vocab_answers)
         # Modules
-        self.embedding = nn.Embedding(num_embeddings=len(self.dict.tok2ind),
-                                      embedding_dim=620,
-                                      padding_idx=self.dict.tok2ind[self.dict.null_token],
-                                      sparse=False)
+        self.embedding = nn.Embedding(
+            num_embeddings=len(self.dict.tok2ind),
+            embedding_dim=620,
+            padding_idx=self.dict.tok2ind[self.dict.null_token],
+            sparse=False
+        )
 
         if self.opt['use_bayesian']:
             self.rnn = BayesianGRU(620,
@@ -37,7 +48,10 @@ class Mlb(nn.Module):
 
     def process_lengths(self, input):
         max_length = input.size(1)
-        sub = input.eq(0).sum(1).squeeze(0) if input.size(0) != 1 else input.eq(0).sum(1)
+        if input.size(0) != 1:
+            sub = input.eq(0).sum(1).squeeze(0)
+        else:
+            sub = input.eq(0).sum(1)
         lengths = list(max_length - sub)
         return lengths
 
@@ -45,7 +59,7 @@ class Mlb(nn.Module):
         batch_size = x.size(0)
         mask = x.new().resize_as_(x).fill_(0)
         for i in range(batch_size):
-            mask[i][lengths[i]-1].fill_(1)
+            mask[i][lengths[i] - 1].fill_(1)
         x = x.mul(mask)
         x = x.sum(1).view(batch_size, self.opt['dim_q'])
         return x
@@ -144,7 +158,7 @@ class MlbNoAtt(Mlb):
                         training=self.training)
         x_q = self.linear_q(x_q)
         x_q = getattr(F, self.opt['activation_q'])(x_q)
-        # hadamard product
+        # hadamard product
         x_mm = torch.mul(x_q, x_v)
         return x_mm
 
@@ -160,7 +174,7 @@ class MlbAtt(Mlb):
                                   self.opt['num_glimpses'],
                                   1, 1)
         if self.opt['original_att']:
-            self.linear_v_fusion = nn.Linear(self.opt['dim_v'] * \
+            self.linear_v_fusion = nn.Linear(self.opt['dim_v'] *
                                              self.opt['num_glimpses'],
                                              self.opt['dim_h'])
             self.linear_q_fusion = nn.Linear(self.opt['dim_q'],
@@ -169,14 +183,16 @@ class MlbAtt(Mlb):
                                             self.num_classes)
         else:
             self.list_linear_v_fusion = nn.ModuleList(
-                                [nn.Linear(self.opt['dim_v'], self.opt['dim_h'])
-                                    for i in range(self.opt['num_glimpses'])])
+                [nn.Linear(self.opt['dim_v'], self.opt['dim_h'])
+                 for i in range(self.opt['num_glimpses'])]
+            )
             self.linear_q_fusion = nn.Linear(self.opt['dim_q'],
                                              self.opt['dim_h'] *
                                              self.opt['num_glimpses'])
             self.linear_classif = nn.Linear(
-                                    self.opt['dim_h'] * self.opt['num_glimpses'],
-                                    self.num_classes)
+                self.opt['dim_h'] * self.opt['num_glimpses'],
+                self.num_classes
+            )
 
         self.states = states
         if self.states:
@@ -234,7 +250,7 @@ class MlbAtt(Mlb):
         list_att = []
         for x_att in list_att_split:
             x_att = x_att.contiguous()
-            x_att = x_att.view(batch_size, width*height)
+            x_att = x_att.view(batch_size, width * height)
             x_att = F.softmax(x_att)
             list_att.append(x_att)
 

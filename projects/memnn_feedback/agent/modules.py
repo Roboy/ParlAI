@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -8,7 +10,6 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 from torch.nn.functional import softmax
-import copy
 
 from functools import lru_cache
 

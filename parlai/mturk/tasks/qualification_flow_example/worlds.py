@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -8,6 +10,7 @@ from parlai.mturk.core.worlds import MTurkOnboardWorld, MTurkTaskWorld
 import parlai.mturk.core.mturk_utils as mturk_utils
 
 import random
+
 
 class QualificationFlowOnboardWorld(MTurkOnboardWorld):
     def parley(self):

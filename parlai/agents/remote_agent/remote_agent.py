@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -20,6 +22,7 @@ def sanitize(obs):
         if type(v) == set:
             obs[k] = list(v)
     return obs
+
 
 class RemoteAgentAgent(Agent):
     """Agent which connects over ZMQ to a paired agent. The other agent is

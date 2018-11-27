@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -6,10 +8,9 @@
 
 from parlai.core.teachers import FixedDialogTeacher
 from parlai.core.image_featurizers import ImageLoader
-from parlai.scripts.extract_image_feature import extract_feats
 from .build import build
 try:
-    import torch
+    import torch  # noqa: F401
 except Exception as e:
     raise ImportError('Need to install Pytorch: go to pytorch.org')
 from torch.utils.data import Dataset
@@ -17,6 +18,7 @@ from parlai.core.dict import DictionaryAgent
 
 import os
 import json
+import random
 
 # There is no real dialog in this task, so for the purposes of display_data, we
 # include a generic question that applies to all images.
@@ -45,8 +47,11 @@ class FlickrDataset(Dataset):
         self._setup_data(data_path, opt.get('unittest', False))
         self.dict_agent = DictionaryAgent(opt)
 
+    @staticmethod
+    def add_cmdline_args(argparser):
+        DefaultTeacher.add_cmdline_args(argparser)
+
     def __getitem__(self, index):
-        index %= self.num_episodes()
         cap = self.data[index]
         image_id = int(cap['filename'].replace('.jpg', ''))
         ep = {
@@ -74,10 +79,14 @@ class FlickrDataset(Dataset):
                 self.data = [d for d in raw_data if d['split'] == 'train']
             elif 'valid' in self.datatype:
                 self.data = [d for d in raw_data if d['split'] == 'val']
-                self.cands = [l for d in self.data for l in [s['raw'] for s in d['sentences']]]
+                self.cands = [
+                    l for d in self.data for l in [s['raw'] for s in d['sentences']]
+                ]
             else:
                 self.data = [d for d in raw_data if d['split'] == 'test']
-                self.cands = [l for d in self.data for l in [s['raw'] for s in d['sentences']]]
+                self.cands = [
+                    l for d in self.data for l in [s['raw'] for s in d['sentences']]
+                ]
         if unittest:
             self.caption = self.caption[:10]
 
@@ -106,18 +115,35 @@ class DefaultTeacher(FixedDialogTeacher):
     def __init__(self, opt, shared=None):
         super().__init__(opt, shared)
         self.image_mode = opt.get('image_mode', 'none')
+        self.use_intro = opt.get('use_intro', False)
+        self.num_cands = opt.get('num_cands', -1)
         data_path, self.image_path = _path(opt)
 
         if shared:
             # another instance was set up already, just reference its data
             self.data = shared['data']
             self.image_loader = shared['image_loader']
+            if 'cands' in shared:
+                self.cands = shared['cands']
         else:
             # need to set up data from scratch
             self._setup_data(data_path)
             self.image_loader = ImageLoader(opt)
 
         self.reset()
+
+    @staticmethod
+    def add_cmdline_args(argparser):
+        agent = argparser.add_argument_group('Flickr30k arguments')
+        agent.add_argument('--use_intro', type='bool',
+                           default=False,
+                           help='Include an intro question with each image \
+                                for readability (e.g. for coco_caption, \
+                                Describe the above picture in a sentence.)')
+        agent.add_argument('--num_cands', type=int,
+                           default=-1,
+                           help='Number of candidates to use during \
+                                evaluation, setting to -1 uses all.')
 
     def reset(self):
         super().reset()  # call parent reset so other fields can be set up
@@ -139,13 +165,24 @@ class DefaultTeacher(FixedDialogTeacher):
     def get(self, episode_idx, entry_idx=0):
         ep = self.data[episode_idx]
         action = {
-            'text': "",
             'image_id': int(ep['filename'].replace('.jpg', '')),
             'episode_done': True,
             'labels': [s['raw'] for s in ep['sentences']]
         }
+        if self.use_intro:
+            action['text'] = QUESTION
         if 'train' not in self.datatype:
-            action['label_candidates'] = self.cands
+            if self.num_cands > 0:
+                labels = action['labels']
+                cands_to_sample = [c for c in self.cands if c not in labels]
+                cands = (
+                    random.Random(episode_idx).sample(cands_to_sample, self.num_cands) +
+                    labels
+                )
+                random.shuffle(cands)
+                action['label_candidates'] = cands
+            else:
+                action['label_candidates'] = self.cands
         return action
 
     def next_example(self):
@@ -176,6 +213,8 @@ class DefaultTeacher(FixedDialogTeacher):
         shared = super().share()
         shared['data'] = self.data
         shared['image_loader'] = self.image_loader
+        if hasattr(self, 'cands'):
+            shared['cands'] = self.cands
         return shared
 
     def _setup_data(self, data_path):
@@ -186,7 +225,11 @@ class DefaultTeacher(FixedDialogTeacher):
                 self.data = [d for d in raw_data if d['split'] == 'train']
             elif 'valid' in self.datatype:
                 self.data = [d for d in raw_data if d['split'] == 'val']
-                self.cands = [l for d in self.data for l in [s['raw'] for s in d['sentences']]]
+                self.cands = [
+                    l for d in self.data for l in [s['raw'] for s in d['sentences']]
+                ]
             else:
                 self.data = [d for d in raw_data if d['split'] == 'test']
-                self.cands = [l for d in self.data for l in [s['raw'] for s in d['sentences']]]
+                self.cands = [
+                    l for d in self.data for l in [s['raw'] for s in d['sentences']]
+                ]

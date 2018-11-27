@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -68,8 +70,10 @@ class NegotiationTeacher(Teacher):
         # 1 example for every expected learner text response (YOU), and 1
         # example for the expected learner final negotiation output values
         num_exs = 0
-        dialogues = [self._split_dialogue(get_tag(episode.strip().split(), DIALOGUE_TAG))
-                     for episode in self.episodes]
+        dialogues = [
+            self._split_dialogue(get_tag(episode.strip().split(), DIALOGUE_TAG))
+            for episode in self.episodes
+        ]
         num_exs = sum(len([d for d in dialogue if YOU_TOKEN in d]) + 1
                       for dialogue in dialogues)
         return num_exs
@@ -115,7 +119,6 @@ class NegotiationTeacher(Teacher):
             self.episode_idx = (self.episode_idx + self.step_size) % len(self.episodes)
             return self._start_dialogue()
 
-
     def _split_dialogue(self, words, separator=EOS_TOKEN):
         sentences = []
         start = 0
@@ -150,8 +153,14 @@ class NegotiationTeacher(Teacher):
             action = self._continue_dialogue(skip_teacher=True)
             action['text'] = welcome
 
-        action['items'] = { "book_cnt" : book_cnt , "book_val" : book_val, "hat_cnt" : hat_cnt, "hat_val" : hat_val,
-            "ball_cnt" : ball_cnt, "ball_val" : ball_val}
+        action['items'] = {
+            "book_cnt": book_cnt,
+            "book_val": book_val,
+            "hat_cnt": hat_cnt,
+            "hat_val": hat_val,
+            "ball_cnt": ball_cnt,
+            "ball_val": ball_val
+        }
 
         return action
 

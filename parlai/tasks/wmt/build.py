@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -52,15 +54,15 @@ def build(opt):
         numpy.random.shuffle(train_zip)
         with open(os.path.join(dpath, valid_w_fname), 'w') as f:
             for de_sent, en_sent in train_zip[:30000]:
-                f.write('1 '+en_sent+'\t'+de_sent+'\n')
+                f.write('1 ' + en_sent + '\t' + de_sent + '\n')
         with open(os.path.join(dpath, train_w_fname), 'w') as f:
             for de_sent, en_sent in train_zip[30000:]:
-                f.write('1 '+en_sent+'\t'+de_sent+'\n')
+                f.write('1 ' + en_sent + '\t' + de_sent + '\n')
 
         test_zip = readFiles(dpath, test_r_fnames)
         with open(os.path.join(dpath, test_w_fname), 'w') as f:
             for de_sent, en_sent in test_zip:
-                f.write('1 '+en_sent+'\t'+de_sent+'\n')
+                f.write('1 ' + en_sent + '\t' + de_sent + '\n')
 
         # Mark the data as built.
         build_data.mark_done(dpath, version_string=version)

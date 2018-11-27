@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -94,6 +96,7 @@ def vectorize(opt, ex, word_dict, feature_dict):
         # Counting from the end, each (full-stop terminated) sentence gets
         # its own time identitfier.
         sent_idx = 0
+
         def _full_stop(w):
             return w in {'.', '?', '!'}
         for i, w in reversed(list(enumerate(ex['document']))):

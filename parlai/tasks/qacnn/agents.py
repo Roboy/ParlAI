@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -9,6 +11,7 @@ from .build import build
 
 import copy
 import os
+
 
 def _path(opt):
     # Build the data if it doesn't exist.

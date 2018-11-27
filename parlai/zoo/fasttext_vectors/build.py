@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -10,5 +12,4 @@ import torchtext.vocab as vocab
 
 
 def download(datapath):
-    embs = vocab.FastText(language='en',
-                          cache=datapath + '/models/fasttext_vectors')
+    vocab.FastText(language='en', cache=datapath + '/models/fasttext_vectors')

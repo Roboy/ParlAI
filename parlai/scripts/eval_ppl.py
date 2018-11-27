@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -33,9 +35,7 @@ def next_word_probability(self, partial_out):
     ['hello'] => {'world': 1.0}
 """
 
-from parlai.core.agents import Agent, create_agent, create_agents_from_shared
-from parlai.core.build_data import download_models
-from parlai.core.dict import DictionaryAgent
+from parlai.core.agents import create_agent, create_agents_from_shared
 from parlai.core.params import ParlaiParser
 from parlai.core.utils import Timer, round_sigfigs, no_lock
 from parlai.core.thread_utils import SharedTable
@@ -47,7 +47,7 @@ import math
 
 def setup_args(parser=None):
     if parser is None:
-        parser = ParlaiParser(True, True)
+        parser = ParlaiParser(True, True, 'Evaluate perplexity')
     parser.set_defaults(
         datatype='valid',
     )
@@ -74,7 +74,9 @@ class PerplexityWorld(World):
         super().__init__(opt)
         if shared:
             # Create agents based on shared data.
-            self.task, self.agent, self.dict = create_agents_from_shared(shared['agents'])
+            self.task, self.agent, self.dict = create_agents_from_shared(
+                shared['agents']
+            )
             self.metrics = shared['metrics']
         else:
             if len(agents) != 3:
@@ -165,8 +167,14 @@ class PerplexityWorld(World):
             if m['exs'] > 0:
                 # m['num_unk'] = self.metrics['num_unk']
                 # m['num_tokens'] = self.metrics['num_tokens']
-                m['loss'] = round_sigfigs(self.metrics['loss'] / self.metrics['num_tokens'], 3)
-                m['ppl'] = round_sigfigs(math.exp(self.metrics['loss'] / self.metrics['num_tokens']), 4)
+                m['loss'] = round_sigfigs(
+                    self.metrics['loss'] / self.metrics['num_tokens'],
+                    3
+                )
+                m['ppl'] = round_sigfigs(
+                    math.exp(self.metrics['loss'] / self.metrics['num_tokens']),
+                    4
+                )
         return m
 
 
@@ -196,7 +204,9 @@ def eval_ppl(opt, build_dict=None, dict_file=None):
         dict_agent = build_dict()
     else:
         dict_opt = copy.deepcopy(opt)
-        dict_opt['model'] = dict_opt.get('dictionary_class', 'parlai.core.dict:DictionaryAgent')
+        dict_opt['model'] = dict_opt.get(
+            'dictionary_class', 'parlai.core.dict:DictionaryAgent'
+        )
         dict_opt['model_file'] = dict_file
         if 'override' in dict_opt:
             del dict_opt['override']
@@ -226,7 +236,7 @@ def eval_ppl(opt, build_dict=None, dict_file=None):
     final_report = world.report()
     print('{}s elapsed: {}'.format(int(tot_time), final_report))
     print("============================")
-    print("FINAL PPL: " +str(final_report['ppl']))
+    print("FINAL PPL: " + str(final_report['ppl']))
     if final_report.get('ppl', 0) == float('inf'):
         print('Note: you got inf perplexity. Consider adding (or raising) the '
               'minimum probability you assign to each possible word. If you '

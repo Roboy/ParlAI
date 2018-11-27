@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -5,7 +7,6 @@
 # of patent rights can be found in the PATENTS file in the same directory.
 """Evaluate pre-trained model trained for ppl metric."""
 
-from parlai.core.build_data import download_models
 from parlai.scripts.eval_ppl import eval_ppl, setup_args
 from projects.twitter.constants import DICT_FILE_30K
 
@@ -16,7 +17,7 @@ if __name__ == '__main__':
         task='twitter',
         datatype='valid',
         metrics='ppl',
-        model='parlai.agents.seq2seq.seq2seq:PerplexityEvaluatorAgent',
+        model='parlai.agents.legacy_agents.seq2seq.seq2seq_v0:PerplexityEvaluatorAgent',
         model_file='models:twitter/seq2seq/twitter_seq2seq_model',
         dict_lower=True,
         batchsize=1,

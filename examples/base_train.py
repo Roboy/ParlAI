@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -20,6 +22,7 @@ from parlai.core.params import ParlaiParser
 from parlai.core.agents import Agent
 from parlai.core.worlds import create_task
 import time
+
 
 def main():
     # Get command line arguments
@@ -56,6 +59,7 @@ def main():
         print(world_valid.report())
 
     print('finished in {} s'.format(round(time.time() - start, 2)))
+
 
 if __name__ == '__main__':
     main()

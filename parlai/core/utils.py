@@ -1,23 +1,58 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree. An additional grant
 # of patent rights can be found in the PATENTS file in the same directory.
+"""File for miscellaneous utility functions and constants."""
 
 from collections import deque
 import math
 import os
 import random
 import time
+import warnings
+
+# some of the utility methods are helpful for Torch
+try:
+    import torch
+    __TORCH_AVAILABLE = True
+except ImportError:
+    __TORCH_AVAILABLE = False
+
+
+"""Near infinity, useful as a large penalty for scoring when inf is bad."""
+NEAR_INF = 1e20
+
+
+DISPLAY_MESSAGE_DEFAULT_FIELDS = {
+    'episode_done',
+    'id',
+    'image',
+    'text',
+    'labels',
+    'eval_labels',
+    'label_candidates',
+    'text_candidates',
+    'reward',
+    'eval_labels_vec',
+    'text_vec',
+    'label_candidates_vecs'
+}
 
 
 def maintain_dialog_history(history, observation, reply='',
                             historyLength=1, useReplies='label_else_model',
                             dict=None, useStartEndIndices=True,
                             splitSentences=False):
-    """Keeps track of dialog history, up to a truncation length.
-    Either includes replies from the labels, model, or not all using param 'replies'."""
+    """Keep track of dialog history, up to a truncation length.
 
+    Either includes replies from the labels, model, or not all using param
+    'replies'.
+
+    DEPRECATED. USE PARLAI.CORE.TORCH_AGENT INSTEAD.
+    """
     def parse(txt, splitSentences):
         if dict is not None:
             if splitSentences:
@@ -68,10 +103,12 @@ def maintain_dialog_history(history, observation, reply='',
     return history['dialog']
 
 
-def load_cands(path, lines_have_ids = False, cands_are_replies = False):
-    """Load global fixed set of candidate labels that the teacher provides
-    every example (the true labels for a specific example are also added to
-    this set, so that it's possible to get the right answer).
+def load_cands(path, lines_have_ids=False, cands_are_replies=False):
+    """Load global fixed set of candidate labels that the teacher provides.
+
+    Every example will include these as candidates. The true labels for a
+    specific example are also added to this set, so that it's possible to get
+    the right answer.
     """
     if path is None:
         return None
@@ -104,17 +141,17 @@ def load_cands(path, lines_have_ids = False, cands_are_replies = False):
 
 
 class Predictor(object):
-    """Provides functionality for setting up a running version of a model and
-    requesting predictions from that model on live data.
+    """Wrapper to set up running version of model and request predictions.
 
     Note that this maintains no World state (does not use a World), merely
     providing the observation directly to the model and getting a response.
 
-    This is limiting when it comes to certain use cases, but is
+    This is limiting when it comes to certain use cases, but allows for quick
+    model deployment.
     """
 
     def __init__(self, args=None, **kwargs):
-        """Initializes the predictor, setting up opt automatically if necessary.
+        """Initialize the predictor, setting up opt automatically if needed.
 
         Args is expected to be in the same format as sys.argv: e.g. a list in
         the form ['--model', 'seq2seq', '-hs', 128, '-lr', 0.5].
@@ -136,9 +173,7 @@ class Predictor(object):
         self.agent = create_agent(self.opt)
 
     def predict(self, observation):
-        """From a ParlAI-standard observation dict, returns a prediction from
-        the model.
-        """
+        """From a ParlAI-standard message dict, get model prediction."""
         if 'episode_done' not in observation:
             observation['episode_done'] = True
         self.agent.observe(observation)
@@ -148,47 +183,71 @@ class Predictor(object):
 
 class Timer(object):
     """Computes elapsed time."""
+
     def __init__(self):
+        """Initialize timer."""
         self.running = True
         self.total = 0
         self.start = time.time()
 
     def reset(self):
+        """Reset timer to zero."""
         self.running = True
         self.total = 0
         self.start = time.time()
         return self
 
     def resume(self):
+        """Resume timer."""
         if not self.running:
             self.running = True
             self.start = time.time()
         return self
 
     def stop(self):
+        """Pause timer."""
         if self.running:
             self.running = False
             self.total += time.time() - self.start
         return self
 
     def time(self):
+        """Get current timer time."""
         if self.running:
             return self.total + time.time() - self.start
         return self.total
 
 
 class TimeLogger():
+    """Class for logging time progress against a goal."""
+
     def __init__(self):
+        """Set up timer."""
         self.timer = Timer()
         self.tot_time = 0
 
     def total_time(self):
+        """Return time elapsed at last log call."""
         return self.tot_time
 
     def time(self):
+        """Return current timer time."""
         return self.timer.time()
 
-    def log(self, done, total, report={}):
+    def log(self, done, total, report=None):
+        """Log report, time elapsed, and percentage progress towards goal.
+
+        :param done: number of examples completed so far
+        :param total: total number of elements to be completed. if total > 0,
+                      calculates the time remaining and percentage complete.
+        :param report: dict of pairs to log
+
+        :returns: tuple log string, log dict
+            log string contains time elapsed and string representation of
+            the log dict
+            log dict contains pairs of all items to log, which includes
+            percentage complete and projected time left if total > 0
+        """
         self.tot_time += self.timer.time()
         self.timer.reset()
         log = {}
@@ -196,14 +255,17 @@ class TimeLogger():
         if total > 0:
             log['%done'] = done / total
             if log["%done"] > 0:
-                log['time_left'] = str(int(self.tot_time / log['%done'] - self.tot_time)) + 's'
-            z = '%.2f' % ( 100*log['%done'])
+                time_left = self.tot_time / log['%done'] - self.tot_time
+                log['time_left'] = str(int(time_left)) + 's'
+            z = '%.2f' % (100 * log['%done'])
             log['%done'] = str(z) + '%'
-        for k, v in report.items():
-            if k not in log:
-                log[k] = v
+        if report:
+            for k, v in report.items():
+                if k not in log:
+                    log[k] = v
         text = str(int(self.tot_time)) + "s elapsed: " + str(log)
         return text, log
+
 
 class AttrDict(dict):
     """Helper class to have a dict-like object with dot access.
@@ -216,12 +278,21 @@ class AttrDict(dict):
     set the key `items` or you will lose access to the `items()` method), this
     can make some code more clear.
     """
+
     def __init__(self, *args, **kwargs):
+        """Initialize AttrDict using input dict."""
         super().__init__(*args, **kwargs)
         self.__dict__ = self
 
 
 def round_sigfigs(x, sigfigs=4):
+    """Round value to specified significant figures.
+
+    :param x: input number
+    :param sigfigs: number of significant figures to return
+
+    :returns: float number rounded to specified sigfigs
+    """
     try:
         if x == 0:
             return 0
@@ -241,15 +312,22 @@ def round_sigfigs(x, sigfigs=4):
 
 
 def flatten(teacher, context_length=-1, include_labels=True):
-    """Return a flattened version of a teacher's data where all episodes only
-    have length one but contain the desired amount of context.
+    """
+    DEPRECATED: If you would like to make use of batch sorting, please
+    use the PytorchDataTeacher instead
+
+    Return a flattened version of a teacher's data.
+
+    All episodes will have length 1 but contain the desired amount of context.
 
     If context_length is not -1, will use only that many past utterances.
-    Default is -1. Setting it to one only uses the input text.
+    Default is -1, full past. Setting it to one only uses the input text.
 
     If include_labels is True, will include a random label in past utterances.
     Default is True.
     """
+    warnings.warn('flatten is deprecated. Please use PytorchDataTeacher.',
+                  DeprecationWarning)
     data = []
     current = []
     episode_done = False
@@ -280,7 +358,7 @@ def flatten(teacher, context_length=-1, include_labels=True):
             current.clear()
             context.clear()
         return data
-    except MemoryError as ex:
+    except MemoryError:
         raise MemoryError('Ran out of memory building flattened data batches. '
                           'Try using --context-length set to a small value to '
                           'limit the length of each flattened example, '
@@ -291,7 +369,11 @@ def flatten(teacher, context_length=-1, include_labels=True):
 
 
 def sort_data(data, key='text_label', method='spaces'):
-    """Given a list of data, sort it according to the method and key.
+    """
+    DEPRECATED: If you would like to make use of batch sorting, please
+    use the PytorchDataTeacher instead.
+
+    Given a list of data, sort it according to the method and key.
 
     Currently the only supported method is counting the number of spaces.
     This appeared to be reliable enough and much faster than tokenizing.
@@ -306,6 +388,8 @@ def sort_data(data, key='text_label', method='spaces'):
     Breaking ties by sorting by label length gives a further improvement in
     speed but can reduce robustness with some optimization schemes.
     """
+    warnings.warn('sort_data is deprecated. Please use PytorchDataTeacher.',
+                  DeprecationWarning)
     # TODO: support different keys and different methods
     tpls = []
     for ex in data:
@@ -326,35 +410,52 @@ def sort_data(data, key='text_label', method='spaces'):
 
 
 def make_batches(data, bsz):
-    """Return a list of lists of size bsz given a list of examples."""
+    """
+    DEPRECATED: If you would like to make use of batch sorting, please
+    use the PytorchDataTeacher instead.
+
+    Return a list of lists of size bsz given a list of examples.
+    """
+    warnings.warn('make_batches is deprecated. Please use PytorchDataTeacher.',
+                  DeprecationWarning)
     return [data[i:i + bsz] for i in range(0, len(data), bsz)]
 
 
 class NoLock(object):
     """Empty `lock`. Does nothing when you enter or exit."""
+
     def __enter__(self):
+        """No-op."""
         return self
+
     def __exit__(self, exc_type, exc_value, exc_traceback):
+        """No-op."""
         pass
 
 
 single_nolock = NoLock()
+
+
 def no_lock():
-    """Builds a nolock for other classes to use for no-op locking."""
+    """Build a nolock for other classes to use for no-op locking."""
     return single_nolock
 
 
 class ProgressLogger(object):
-    """
-    Throttles and display progress in human readable form.
-    Default throttle speed is 1 sec
-    """
+    """Throttles and display progress in human readable form."""
+
     def __init__(self, throttle=1, should_humanize=True):
+        """Initialize Progress logger.
+
+        :param throttle: default 1, number in seconds to use as throttle rate
+        :param should_humanize: default True, whether to humanize data units
+        """
         self.latest = time.time()
         self.throttle_speed = throttle
         self.should_humanize = should_humanize
 
     def humanize(self, num, suffix='B'):
+        """Convert units to more human-readable format."""
         if num < 0:
             return num
         for unit in ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi']:
@@ -364,7 +465,7 @@ class ProgressLogger(object):
         return "%.1f%s%s" % (num, 'Yi', suffix)
 
     def log(self, curr, total, width=40, force=False):
-        """Displays a bar showing the current progress."""
+        """Display a bar showing the current progress."""
         if curr == 0 and total == -1:
             print('[ no data received for this file ]', end='\r')
             return
@@ -392,18 +493,27 @@ class ProgressLogger(object):
 
 
 class PaddingUtils(object):
+    """Helps with padding input and target tensors.
+
+    DEPRECATED. USE PARLAI.CORE.TORCH_AGENT INSTEAD.
     """
-    Class that contains functions that help with padding input and target tensors.
-    """
+
     @classmethod
-    def pad_text(cls, observations, dictionary, end_idx=None, null_idx=0, dq=False, eval_labels=True, truncate=None):
-        """We check that examples are valid, pad with zeros, and sort by length
-           so that we can use the pack_padded function. The list valid_inds
-           keeps track of which indices are valid and the order in which we sort
-           the examples.
-           dq -- whether we should use deque or list
-           eval_labels -- whether or not we want to consider eval labels
-           truncate -- truncate input and output lengths
+    def pad_text(cls, observations, dictionary,
+                 end_idx=None, null_idx=0, dq=False, eval_labels=True,
+                 truncate=None):
+        """Pad observations to max width.
+
+        We check that examples are valid, pad with zeros, and sort by length
+        so that we can use the pack_padded function. The list valid_inds
+        keeps track of which indices are valid and the order in which we sort
+        the examples.
+
+        dq -- whether we should use deque or list
+        eval_labels -- whether or not we want to consider eval labels
+        truncate -- truncate input and output lengths
+
+        DEPRECATED. USE PARLAI.CORE.TORCH_AGENT INSTEAD.
         """
         def valid(obs):
             # check if this is an example our model should actually process
@@ -457,7 +567,6 @@ class PaddingUtils(object):
                         for x in parsed_x]
         xs = parsed_x
 
-
         # set up the target tensors
         ys = None
         labels = None
@@ -495,10 +604,17 @@ class PaddingUtils(object):
         return xs, ys, labels, valid_inds, end_idxs, y_lens
 
     @classmethod
-    def map_predictions(cls, predictions, valid_inds, batch_reply, observations, dictionary, end_idx, report_freq=0.1, labels=None, answers=None, ys=None):
-        """Predictions are mapped back to appropriate indices in the batch_reply
-           using valid_inds.
-           report_freq -- how often we report predictions
+    def map_predictions(cls, predictions, valid_inds, batch_reply,
+                        observations, dictionary, end_idx, report_freq=0.1,
+                        labels=None, answers=None, ys=None):
+        """Match predictions to original index in the batch.
+
+        Predictions are mapped back to appropriate indices in the batch_reply
+        using valid_inds.
+
+        report_freq -- how often we report predictions
+
+        DEPRECATED. USE PARLAI.CORE.TORCH_AGENT INSTEAD.
         """
         for i in range(len(predictions)):
             # map the predictions back to non-empty examples in the batch
@@ -534,11 +650,14 @@ class PaddingUtils(object):
 
 
 class OffensiveLanguageDetector(object):
-    """Detects offensive language using a list of offensive language and phrases
+    """Tries to detect offensive language in text.
+
+    Detects offensive language using a list of offensive language and phrases
     from https://github.com/LDNOOBW.
     """
 
     def __init__(self):
+        """Get data from external sources and build data representation."""
         import parlai.core.build_data as build_data
         from parlai.core.params import ParlaiParser
         from parlai.core.dict import DictionaryAgent
@@ -549,7 +668,9 @@ class OffensiveLanguageDetector(object):
         def _path():
             # Build the data if it doesn't exist.
             build()
-            return os.path.join(self.datapath, 'OffensiveLanguage', 'OffensiveLanguage.txt')
+            return os.path.join(
+                self.datapath, 'OffensiveLanguage', 'OffensiveLanguage.txt'
+            )
 
         def build():
             version = 'v1.0'
@@ -575,14 +696,28 @@ class OffensiveLanguageDetector(object):
         # store a token trie: e.g.
         # {'2': {'girls': {'1': {'cup': {'__END__': True}}}}
         self.END = '__END__'
-        self.offensive_trie = {}
         self.max_len = 1
+        self.offensive_trie = {}
+        self.word_prefixes = ['de', 'de-', 'dis', 'dis-', 'ex', 'ex-', 'mis',
+                              'mis-', 'pre', 'pre-', 'non', 'non-', 'semi',
+                              'semi-', 'sub', 'sub-', 'un', 'un-']
+        self.word_suffixes = ['a', 'able', 'as', 'dom', 'ed', 'er', 'ers',
+                              'ery', 'es', 'est', 'ful', 'fy', 'ies', 'ify',
+                              'in', 'ing', 'ish', 'less', 'ly', 's', 'y']
+        self.white_list = ['butter', 'buttery', 'spicy', 'spiced', 'spices',
+                           'spicier', 'spicing', 'twinkies']
+
         with open(self.datafile, 'r') as f:
             for p in f.read().splitlines():
-                self.add_phrase(p)
+                mod_ps = [p]
+                mod_ps += [pref + p for pref in self.word_prefixes]
+                mod_ps += [p + suff for suff in self.word_suffixes]
+                for mod_p in mod_ps:
+                    if mod_p not in self.white_list:
+                        self.add_phrase(mod_p)
 
     def add_phrase(self, phrase):
-        """Adds a single phrase to the trie."""
+        """Add a single phrase to the filter."""
         toks = self.tokenize(phrase)
         curr = self.offensive_trie
         for t in toks:
@@ -597,7 +732,7 @@ class OffensiveLanguageDetector(object):
         for phrase in phrase_list:
             self.add_phrase(phrase)
 
-    def check_sequence(self, toks, idx, node):
+    def _check_sequence(self, toks, idx, node):
         """Check if words from the sequence are in the trie.
 
         This checks phrases made from
@@ -614,20 +749,26 @@ class OffensiveLanguageDetector(object):
         return False
 
     def contains_offensive_language(self, text):
-        """Determines if text contains any offensive words from the list."""
+        """Determine if text contains any offensive words in the filter."""
         if type(text) is str:
             toks = self.tokenize(text.lower())
         elif type(text) is list or type(text) is tuple:
             toks = text
 
         for i in range(len(toks)):
-            res = self.check_sequence(toks, i, self.offensive_trie)
+            res = self._check_sequence(toks, i, self.offensive_trie)
             if res:
                 return res
 
         return None
 
+    def __contains__(self, key):
+        """Determine if text contains any offensive words in the filter."""
+        return self.contains_offensive_language(key)
+
+
 def clip_text(text, max_len):
+    """Clip text to max length, adding ellipses."""
     if len(text) > max_len:
         begin_text = ' '.join(
             text[:math.floor(0.8 * max_len)].split(' ')[:-1]
@@ -641,10 +782,30 @@ def clip_text(text, max_len):
             text = begin_text + ' ...'
     return text
 
+
+def _ellipse(lst, max_display=5, sep='|'):
+    """Like join, but possibly inserts an ellipsis.
+
+    :param lst: The list to join on
+    :param int max_display: the number of items to display for ellipsing.
+        If -1, shows all items
+    :param string sep: the delimiter to join on
+    """
+    # copy the list (or force it to a list if it's a set)
+    choices = list(lst)
+    # insert the ellipsis if necessary
+    if max_display > 0 and len(choices) > max_display:
+        ellipsis = '...and {} more'.format(len(choices) - max_display)
+        choices = choices[:max_display] + [ellipsis]
+    return sep.join(str(c) for c in choices)
+
+
 def display_messages(msgs, prettify=False, ignore_fields='', max_len=1000):
-    """Returns a string describing the set of messages provided
+    """Return a string describing the set of messages provided.
+
     If prettify is true, candidates are displayed using prettytable.
-    ignore_fields provides a list of fields in the msgs which should not be displayed.
+    ignore_fields provides a list of fields in the msgs which should not be
+    displayed.
     """
     lines = []
     episode_done = False
@@ -664,8 +825,11 @@ def display_messages(msgs, prettify=False, ignore_fields='', max_len=1000):
         if msg.get('reward', 0) != 0:
             lines.append(space + '[reward: {r}]'.format(r=msg['reward']))
         for key in msg:
-            if key not in ['episode_done', 'id', 'image', 'text', 'labels', 'eval_labels', 'label_candidates', 'text_candidates', 'reward'] and key not in ignore_fields:
-                line = '[' + key + ']: ' + clip_text(str(msg.get(key)), max_len)
+            if key not in DISPLAY_MESSAGE_DEFAULT_FIELDS and key not in ignore_fields:
+                if type(msg[key]) is list:
+                    line = '[' + key + ']:\n  ' + _ellipse(msg[key], sep='\n  ')
+                else:
+                    line = '[' + key + ']: ' + clip_text(str(msg.get(key)), max_len)
                 lines.append(space + line)
         if type(msg.get('image')) == str:
             lines.append(msg['image'])
@@ -673,79 +837,13 @@ def display_messages(msgs, prettify=False, ignore_fields='', max_len=1000):
             text = clip_text(msg['text'], max_len)
             ID = '[' + msg['id'] + ']: ' if 'id' in msg else ''
             lines.append(space + ID + text)
-        if msg.get('labels') and 'labels' not in ignore_fields:
-            lines.append(space + ('[labels: {}]'.format(
-                        '|'.join(msg['labels']))))
-        if msg.get('eval_labels') and 'eval_labels' not in ignore_fields:
-            lines.append(space + ('[eval_labels: {}]'.format(
-                        '|'.join(msg['eval_labels']))))
+        for field in {'labels', 'eval_labels', 'label_candidates', 'text_candidates'}:
+            if msg.get(field) and field not in ignore_fields:
+                lines.append('{}[{}: {}]'.format(space, field, _ellipse(msg[field])))
 
-        if msg.get('label_candidates') and 'label_candidates' not in ignore_fields:
-            cand_len = len(msg['label_candidates'])
-            if cand_len <= 10:
-                lines.append(space + ('[label_candidates: {}]'.format(
-                        '|'.join(msg['label_candidates']))))
-            else:
-                # select five label_candidates from the candidate set,
-                # can't slice in because it's a set
-                cand_iter = iter(msg['label_candidates'])
-                display_cands = (next(cand_iter) for _ in range(5))
-                # print those cands plus how many cands remain
-                lines.append(space + ('[label_candidates: {}{}]'.format(
-                        '|'.join(display_cands),
-                        '| ...and {} more'.format(cand_len - 5)
-                        )))
-        if msg.get('text_candidates') and 'text_candidates' not in ignore_fields:
-            if prettify:
-                cand_len = len(msg['text_candidates'])
-                cands = [c for c in msg['text_candidates'] if c is not None]
-                try:
-                    import prettytable
-                except ImportError:
-                    raise ImportError('Please install prettytable to \
-                    display text candidates: `pip install prettytable`')
-                scores = None
-                if msg.get('candidate_scores') is not None:
-                    table = prettytable.PrettyTable(['Score', 'Text'])
-                    scores = msg.get('candidate_scores')
-                else:
-                    table = prettytable.PrettyTable(['Text'])
-                table.align = 'l'
-                table.hrules = 1
-                display_cands = []
-                num_cands = 0
-                for cand in cands:
-                    cand_max_length = 250 if scores is None else 100
-                    if len(cand) > cand_max_length:
-                        # Show beginning and end
-                        split = [cand[:cand_max_length], cand[cand_max_length:]]
-                        cand = split[0] + '\n\n. . .\n\n' + split[1][-(min(50, len(split[1]))):]
-                    if scores is not None:
-                        table.add_row([scores[num_cands], cand])
-                    else:
-                        table.add_row([cand])
-                    num_cands += 1
-                    if num_cands > 5:
-                        break
-
-                lines.append(space + table.get_string())
-            else:
-                cand_len = len(msg['text_candidates'])
-                if cand_len <= 10:
-                    lines.append(space + ('[text_candidates: {}]'.format(
-                            '|'.join(msg['text_candidates']))))
-                else:
-                    # select five label_candidates from the candidate set,
-                    # can't slice in because it's a set
-                    cand_iter = iter(msg['text_candidates'])
-                    display_cands = (next(cand_iter) for _ in range(5))
-                    # print those cands plus how many cands remain
-                    lines.append(space + ('[text_candidates: {}{}]'.format(
-                            '|'.join(display_cands),
-                            '| ...and {} more'.format(cand_len - 5)
-                            )))
     if episode_done:
         lines.append('- - - - - - - - - - - - - - - - - - - - -')
+
     return '\n'.join(lines)
 
 
@@ -788,7 +886,7 @@ def str_to_msg(txt, ignore_fields=''):
     for t in txt.split('\t'):
         ind = t.find(':')
         key = t[:ind]
-        value = t[ind+1:]
+        value = t[ind + 1:]
         if key not in ignore_fields.split(','):
             msg[key] = convert(key, value)
     msg['episode_done'] = msg.get('episode_done', False)
@@ -836,3 +934,155 @@ def msg_to_str(msg, ignore_fields=''):
         if f not in default_fields and f not in ignore_fields:
             txt += add_field(f, msg[f])
     return txt.rstrip('\t')
+
+
+def set_namedtuple_defaults(namedtuple, default=None):
+    """Set *all* of the fields for a given nametuple to a singular value.
+
+    Modifies the tuple in place, but returns it anyway.
+
+    More info:
+    https://stackoverflow.com/a/18348004
+
+    :param namedtuple: A constructed collections.namedtuple
+    :param default: The default value to set.
+
+    :returns: the modified namedtuple
+    """
+    namedtuple.__new__.__defaults__ = (default,) * len(namedtuple._fields)
+    return namedtuple
+
+
+def padded_tensor(items, pad_idx=0, use_cuda=False, left_padded=False,
+                  max_len=None):
+    """Create a right-padded matrix from an uneven list of lists.
+
+    Returns (padded, lengths), where padded is the padded matrix, and lengths
+    is a list containing the lengths of each row.
+
+    Matrix is right-padded (filled to the right) by default, but can be
+    left padded if the flag is set to True.
+
+    Matrix can also be placed on cuda automatically.
+
+    :param list[iter[int]] items: List of items
+    :param bool sort: If True, orders by the length
+    :param int pad_idx: the value to use for padding
+    :param bool use_cuda: if true, places `padded` on GPU
+    :param bool left_padded:
+    :param int max_len: if None, the max length is the maximum item length
+
+    :returns: (padded, lengths) tuple
+    :rtype: (Tensor[int64], list[int])
+    """
+    # hard fail if we don't have torch
+    if not __TORCH_AVAILABLE:
+        raise ImportError(
+            "Cannot use padded_tensor without torch; go to http://pytorch.org"
+        )
+
+    # number of items
+    n = len(items)
+    # length of each item
+    lens = [len(item) for item in items]
+    # max in time dimension
+    t = max(lens) if max_len is None else max_len
+
+    # if input tensors are empty, we should expand to nulls
+    t = max(t, 1)
+
+    if isinstance(items[0], torch.Tensor):
+        # keep type of input tensors, they may already be cuda ones
+        output = items[0].new(n, t)
+    else:
+        output = torch.LongTensor(n, t)
+    output.fill_(pad_idx)
+
+    for i, (item, length) in enumerate(zip(items, lens)):
+        if length == 0:
+            # skip empty items
+            continue
+        if not isinstance(item, torch.Tensor):
+            # put non-tensors into a tensor
+            item = torch.LongTensor(item)
+        if left_padded:
+            # place at end
+            output[i, t - length:] = item
+        else:
+            # place at beginning
+            output[i, :length] = item
+
+    if use_cuda:
+        output = output.cuda()
+    return output, lens
+
+
+def padded_3d(tensors, pad_idx=0, use_cuda=0):
+    """Make 3D padded tensor for list of lists of 1D tensors or lists.
+
+    :param tensors:  list of lists of 1D tensors (or lists)
+    :param pad_idx:  padding to fill tensor with
+    :param use_cuda: whether to call cuda() before returning
+
+    :returns: 3D tensor with the maximum dimensions of the inputs
+    """
+    a = len(tensors)
+    b = max(len(row) for row in tensors)
+    c = max(len(item) for row in tensors for item in row)
+
+    # pad empty tensors
+    c = max(c, 1)
+
+    output = torch.LongTensor(a, b, c).fill_(pad_idx)
+
+    for i, row in enumerate(tensors):
+        for j, item in enumerate(row):
+            if len(item) == 0:
+                continue
+            if not isinstance(item, torch.Tensor):
+                item = torch.LongTensor(item)
+            output[i, j, :len(item)] = item
+
+    if use_cuda:
+        output = output.cuda()
+
+    return output
+
+
+def argsort(keys, *lists, descending=False):
+    """Reorder each list in lists by the (descending) sorted order of keys.
+
+    :param iter keys: Keys to order by.
+    :param list[list] lists: Lists to reordered by keys's order.
+                             Correctly handles lists and 1-D tensors.
+    :param bool descending: Use descending order if true.
+
+    :returns: The reordered items.
+    """
+    ind_sorted = sorted(range(len(keys)), key=lambda k: keys[k])
+    if descending:
+        ind_sorted = list(reversed(ind_sorted))
+    output = []
+    for lst in lists:
+        # watch out in case we don't have torch installed
+        if __TORCH_AVAILABLE and isinstance(lst, torch.Tensor):
+            output.append(lst[ind_sorted])
+        else:
+            output.append([lst[i] for i in ind_sorted])
+    return output
+
+
+_seen_warnings = set()
+
+
+def warn_once(msg, warningtype=None):
+    """
+    Raise a warning, but only once.
+
+    :param str msg: Message to display
+    :param Warning warningtype: Type of warning, e.g. DeprecationWarning
+    """
+    global _seen_warnings
+    if msg not in _seen_warnings:
+        _seen_warnings.add(msg)
+        warnings.warn(msg, warningtype)

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -13,10 +15,8 @@
 # for more details: https://arxiv.org/abs/1604.06045 and https://arxiv.org/abs/1605.07683
 
 from parlai.core.teachers import FbDialogTeacher
-from parlai.core.agents import MultiTaskTeacher
 from .build import build
 
-import copy
 import os
 
 tasks = {}
@@ -101,7 +101,6 @@ class TaskTeacher(FbDialogTeacher):
             x = ''
 
             y = None
-            cands = None
 
             reward = 0
             dialog_index = 0
@@ -159,9 +158,6 @@ class TaskTeacher(FbDialogTeacher):
                     read_feedback = True
                     # split labels
                     y = split[1].split('|')
-                    if len(split) > 3:
-                        # split label_candidates
-                        cands = split[3].split('|')
 
                 if read_feedback and not split[1]:
                     split[0] = x

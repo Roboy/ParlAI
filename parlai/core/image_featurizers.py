@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+
+# Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree. An additional grant
@@ -72,12 +75,12 @@ class ImageLoader():
         """
         try:
             import torch
-            self.use_cuda = (not opt.get('no_cuda', False)
-                             and torch.cuda.is_available())
+            self.use_cuda = (
+                not opt.get('no_cuda', False) and torch.cuda.is_available()
+            )
             self.torch = torch
         except ImportError:
             raise ImportError('Need to install Pytorch: go to pytorch.org')
-        from torch.autograd import Variable
         import torchvision
         import torchvision.transforms as transforms
         import torch.nn as nn
@@ -113,7 +116,6 @@ class ImageLoader():
         ])
         if self.use_cuda:
             self.netCNN.cuda()
-
 
     def image_mode_switcher(self):
         switcher = {
@@ -171,11 +173,14 @@ class ImageLoader():
         elif '.zip' in path:
             # assume format path/to/file.zip/image_name.jpg
             is_zip = True
-            sep = path.index('.zip')+4
+            sep = path.index('.zip') + 4
             zipname = path[:sep]
-            file_name = path[sep+1:]
+            file_name = path[sep + 1:]
             path = ZipFile(zipname, 'r').open(file_name)
-            task = opt['task'] if opt['task'] != 'pytorch_teacher' else opt['image_load_task']
+            if opt['task'] != 'pytorch_teacher':
+                task = opt['task']
+            else:
+                task = opt['image_load_task']
             prepath = os.path.join(opt['datapath'], task)
             imagefn = ''.join(zipname.strip('.zip').split('/')[-2:]) + path.name
         if mode == 'raw':

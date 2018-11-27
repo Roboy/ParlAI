@@ -1,5 +1,5 @@
-# Copyright (c) 2017-present, Facebook, Inc.
-# All rights reserved.
+#!/usr/bin/env python3
+
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree. An additional grant
 # of patent rights can be found in the PATENTS file in the same directory.
@@ -168,14 +168,14 @@ class VqaDictionaryAgent(Agent):
 
     def tokenize_mcb(self, s):
         t_str = s.lower()
-        for i in [r'\?',r'\!',r'\'',r'\"',r'\$',r'\:',r'\@',r'\(',r'\)',r'\,',r'\.',r'\;']:
-            t_str = re.sub( i, '', t_str)
-        for i in [r'\-',r'\/']:
-            t_str = re.sub( i, ' ', t_str)
-        q_list = re.sub(r'\?','',t_str.lower()).split(' ')
+        for i in [r'\?', r'\!', r'\'', r'\"', r'\$', r'\:', r'\@', r'\(',
+                  r'\)', r'\,', r'\.', r'\;']:
+            t_str = re.sub(i, '', t_str)
+        for i in [r'\-', r'\/']:
+            t_str = re.sub(i, ' ', t_str)
+        q_list = re.sub(r'\?', '', t_str.lower()).split(' ')
         q_list = list(filter(lambda x: len(x) > 0, q_list))
         return q_list
-
 
     def split_tokenize(self, s):
         return (s.lower().replace('.', ' . ').replace('. . .', '...')
@@ -187,7 +187,8 @@ class VqaDictionaryAgent(Agent):
         """Add any words passed in the 'text' field of the observation to this
         dictionary.
         """
-        for text in self.observation.get('mc_label', self.observation.get('labels', [])):
+        mc_label = self.observation.get('mc_label', self.observation.get('labels', []))
+        for text in mc_label:
             self.ansfreq[text] += 1
             self.ans2ques[text].append(self.tokenize_mcb(self.observation.get('text')))
         return {'id': 'Dictionary'}
@@ -198,10 +199,13 @@ class VqaDictionaryAgent(Agent):
         for ex in examples:
             words = self.tokenize_mcb(ex['text'])
             if training:
-                words_unk = [w if self.freq.get(w, 0) > minwcount else self.unk_token for w in words]
+                words_unk = [
+                    w if self.freq.get(w, 0) > minwcount else self.unk_token
+                    for w in words
+                ]
             else:
                 words_unk = [w if w in self.tok2ind else self.unk_token for w in words]
-            ex['question_wids'] = [self.tok2ind[self.null_token]]*maxlength
+            ex['question_wids'] = [self.tok2ind[self.null_token]] * maxlength
             for k, w in enumerate(words_unk):
                 if k < maxlength:
                     ex['question_wids'][k] = self.tok2ind[w]
@@ -210,7 +214,8 @@ class VqaDictionaryAgent(Agent):
     def encode_answer(self, examples):
         for ex in examples:
             if self.opt.get('samplingans', True):
-                ans_count = Counter(ex.get('labels', ex.get('eval_labels'))).most_common()
+                labels = ex.get('labels', ex.get('eval_labels'))
+                ans_count = Counter(labels).most_common()
                 valid_ans = []
                 valid_count = []
                 for ans in ans_count:
@@ -250,7 +255,7 @@ class VqaDictionaryAgent(Agent):
                     self.ind2tok[index] = token
         print('[ num ques words =  %d ]' % len(self.ind2tok))
 
-        with open(filename[:-5]+"_ans.dict") as read:
+        with open(filename[:-5] + "_ans.dict") as read:
             for line in read:
                 split = line.strip().split('\t')
                 token = unescape(split[0])
@@ -274,11 +279,11 @@ class VqaDictionaryAgent(Agent):
         If ``sort`` (default ``True``), then first sort the dictionary before
         saving.
         """
-        cw = sorted([(count,w) for w,count in self.ansfreq.items()], reverse=True)
+        cw = sorted([(count, w) for w, count in self.ansfreq.items()], reverse=True)
         final_exs = cw[:self.opt.get('nans', 2000)]
-        final_list = dict([(w,c) for c,w in final_exs])
+        final_list = dict([(w, c) for c, w in final_exs])
         self.ansfreq = defaultdict(int)
-        for ans,ques in self.ans2ques.items():
+        for ans, ques in self.ans2ques.items():
             if ans in final_list:
                 for que in ques:
                     self.add_to_ques_dict(que)
@@ -295,7 +300,7 @@ class VqaDictionaryAgent(Agent):
                 cnt = self.freq[tok]
                 write.write('{tok}\t{cnt}\n'.format(tok=escape(tok), cnt=cnt))
 
-        with open(filename[:-5]+"_ans.dict", 'a' if append else 'w') as write:
+        with open(filename[:-5] + "_ans.dict", 'a' if append else 'w') as write:
             for i in range(len(self.ind2ans)):
                 tok = self.ind2ans[i]
                 cnt = self.ansfreq[tok]
@@ -426,7 +431,7 @@ class MlbVqaAgent(Agent):
         # Get appropriate dims
         first_ex = batch[0][1][0]
 
-        #If we are building the dictionary
+        # If we are building the dictionary
         if 'image' not in first_ex or first_ex['image'] is None:
             new_batch = []
             for b in batch:
@@ -481,7 +486,9 @@ class MlbVqaAgent(Agent):
             ep_dones.append(ex['episode_done'])
 
         data = {
-            'input_v': MlbVqaAgent.static_vis_noatt(input_v, use_att, use_hdf5=use_hdf5),
+            'input_v': MlbVqaAgent.static_vis_noatt(
+                input_v, use_att, use_hdf5=use_hdf5
+            ),
             'input_q': input_q,
             'valid_inds': valid_inds,
             'batchsize': batchsize,
@@ -493,10 +500,14 @@ class MlbVqaAgent(Agent):
             data['answer'] = answer
         return [
             data
-        ] + [{
+        ] + [
+            {
                 'labels': ex_label,
                 'episode_done': ep_done,
-                'preprocessed': True} for ex_label, ep_done in zip(labels[1:], ep_dones[1:])]
+                'preprocessed': True
+            }
+            for ex_label, ep_done in zip(labels[1:], ep_dones[1:])
+        ]
 
     def process_obs(self, observations):
         if any('text' not in ex for ex in observations):

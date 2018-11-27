@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -9,11 +11,10 @@ PytorchDataTeacher.
 Note that with our given implementation of batch act, episodes are compressed
 such that each episode is one example for a model.
 
-One can set the `--context-len` flag to specify how many past utterances
+One can set the ``--context-len`` flag to specify how many past utterances
 are used in a flattened episode.
 """
-from parlai.core.agents import create_agent, create_task_agent_from_taskname
-from parlai.core.params import ParlaiParser
+from parlai.core.agents import create_agent
 from parlai.core.worlds import create_task
 from parlai.core.utils import ProgressLogger
 import copy
@@ -24,8 +25,11 @@ import collections
 import torch
 from collections import deque
 
+
 def setup_args():
-    return ParlaiParser(True, True)
+    from parlai.core.params import ParlaiParser
+    return ParlaiParser(True, True, 'Builds a pytorch data file.')
+
 
 def make_serializable(obj):
     new_obj = {}
@@ -36,8 +40,10 @@ def make_serializable(obj):
             new_obj[key] = dict(val)
         elif isinstance(val, collections.Sequence):
             new_obj[key] = list(val)
-        elif isinstance(val, torch.Tensor):
-            new_obj[key] = val.tolist()
+        elif torch.is_tensor(val):
+            new_obj[key] = {'value': val.tolist(),
+                            'deserialized_tensor': True,
+                            'type': str(val.dtype)}
     return new_obj
 
 
@@ -45,15 +51,17 @@ def build_data(opt):
     if not opt.get('model', False):
         opt['model'] = 'repeat_label'
     agent = create_agent(opt)
-    #If build teacher not specified, we are simply looking for the file
+    # If build teacher not specified, we are simply looking for the file
     if not opt.get('pytorch_teacher_task', None):
-        df = opt.get('pytorch_datafile')
+        df = opt.get('pytorch_datapath')
         # check if the user set a datafile
         if not df:
-            raise Exception('Tried to find data but `--pytorch-datafile` is not set')
+            raise Exception('Tried to find data but `--pytorch-datapath` is not set')
         # check if the user provided the already built file
         if 'pytorch' not in df:
-            df += '.pytorch' + (agent.getID() if opt.get('pytorch_preprocess', True) else '')
+            df += '.pytorch' + (
+                agent.getID() if opt.get('pytorch_preprocess', True) else ''
+            )
         if not os.path.isfile(df):
             raise Exception('Tried to find data but it is not built, please'
                             'specify `--pytorch-teacher-task`')
@@ -71,42 +79,41 @@ def build_data(opt):
     world_data = create_task(ordered_opt, agent)
     teacher = world_data.agents[0]
     agent = world_data.agents[1]
-
-    datafile = teacher.datafile if hasattr(teacher, 'datafile') else opt.get('pytorch_datafile')
-    if not datafile:
-        raise Exception('Tried to build data but either `pytorch-teacher-task` does not '
-                        'have a datafile or `--pytorch-datafile` is not set')
-
-    if isinstance(datafile, collections.Sequence) and not type(datafile) == str:
-        datafile = datafile[0] + "".join(["_".join(d.split("/")) for d in datafile[1:]])
-    pytorch_datafile = datafile + ".pytorch"
+    datapath = os.path.join(opt.get('datapath', '.'),
+                            '{}_pyt_data'.format(
+                                ordered_opt['task'].replace(':', '_')),
+                            dt)
     preprocess = opt.get('pytorch_preprocess', True)
     if preprocess:
-        pytorch_datafile += agent.getID()
-    if os.path.isfile(pytorch_datafile):
+        datapath += '_{}_preprocess'.format(agent.getID().replace(':', '_'))
+    if os.path.isdir(datapath):
         # Data already built
-        print("[ pytorch data already built. ]")
-        return pytorch_datafile
-    print('----------\n[ setting up pytorch data, saving to {}. ]\n----------'.format(pytorch_datafile))
-
+        print("[ pytorch data already built, at {}. ]".format(datapath))
+        return datapath
+    print(
+        '----------\n[ setting up pytorch data, saving to {}/ ]\n----------'.format(
+            datapath
+        )
+    )
+    os.makedirs(datapath, exist_ok=True)
     num_eps = 0
     num_exs = 0
     current = []
     episode_done = False
-    include_labels = opt.get('include_labels', True)
-    context_length = opt.get('context_length', -1)
+    include_labels = opt.get('pytorch_include_labels', True)
+    context_length = opt.get('pytorch_context_length', -1)
     context = deque(maxlen=context_length if context_length > 0 else None)
     logger = ProgressLogger(should_humanize=False, throttle=0.1)
     total_exs = world_data.num_examples()
     # pass examples to dictionary
-    with open(pytorch_datafile, 'w') as pytorch_data:
+    with open(os.path.join(datapath, 'data'), 'w') as pytorch_data:
         while num_exs < total_exs:
             while not episode_done:
                 action = teacher.act()
                 current.append(action)
                 episode_done = action.get('episode_done', False)
 
-            #build separate episodes
+            # build separate episodes
             for ex in current:
                 context.append(ex.get('text', ''))
                 if len(context) > 1:
@@ -115,7 +122,7 @@ def build_data(opt):
                 labels = ex.get('labels', ex.get('eval_labels', None))
                 if labels is not None and include_labels:
                     context.append(random.choice(labels))
-                #generate observation from new example
+                # generate observation from new example
                 if preprocess:
                     ex = agent.observe(ex)
                     ex.pop('label_candidates', '')
@@ -124,16 +131,17 @@ def build_data(opt):
                 num_exs += 1
                 logger.log(num_exs, total_exs)
                 pytorch_data.write(json.dumps(make_serializable(ex)) + "\n")
-            #reset
+            # reset
             episode_done = False
             current.clear()
             context.clear()
 
-    with open(pytorch_datafile + '.length', 'w') as pytorch_data_len:
-        pytorch_data_len.write(json.dumps({'num_eps':num_eps, 'num_exs':num_exs}))
+    with open(os.path.join(datapath, 'data_length'), 'w') as pytorch_data_len:
+        pytorch_data_len.write(json.dumps({'num_eps': num_eps,
+                                           'num_exs': num_exs}))
 
     print('[ pytorch data built. ]')
-    return pytorch_datafile
+    return datapath
 
 
 if __name__ == '__main__':

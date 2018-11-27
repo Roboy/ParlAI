@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -35,5 +37,3 @@ In this task, you are going to chat with two other people.<br><br>
 
 If you are ready, please click "Accept HIT" to start this task.
 \'\'\''''
-
-

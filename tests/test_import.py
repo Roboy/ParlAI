@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -32,6 +34,7 @@ class TestImport(unittest.TestCase):
     def test_import_fbdialog(self):
         from parlai.core.teachers import FbDialogTeacher
         assert FbDialogTeacher
+
 
 if __name__ == '__main__':
     unittest.main()

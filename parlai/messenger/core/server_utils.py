@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -83,7 +85,7 @@ def setup_heroku_server(task_name):
     ))
 
     # Delete old server files
-    sh.rm(shlex.split('-rf '+heroku_server_directory_path))
+    sh.rm(shlex.split('-rf ' + heroku_server_directory_path))
 
     # Copy over a clean copy into the server directory
     shutil.copytree(server_source_directory_path, heroku_server_directory_path)
@@ -98,7 +100,7 @@ def setup_heroku_server(task_name):
     while not heroku_user_identifier:
         try:
             subprocess.check_output(
-                shlex.split(heroku_executable_path+' auth:token')
+                shlex.split(heroku_executable_path + ' auth:token')
             )
             heroku_user_identifier = (
                 netrc.netrc(os.path.join(os.path.expanduser("~"), '.netrc'))

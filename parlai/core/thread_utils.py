@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -9,6 +11,7 @@ from multiprocessing import Lock, RawArray
 from collections.abc import MutableMapping
 import ctypes
 import sys
+
 
 class SharedTable(MutableMapping):
     """Provides a simple shared-memory table of integers, floats, or strings.
@@ -134,13 +137,12 @@ class SharedTable(MutableMapping):
 
     def __str__(self):
         """Returns simple dict representation of the mapping."""
-        return '{{{}}}'.format(
-            ', '.join(
-                ['{k}: {v}'.format(k=key, v=self.arrays[typ][idx])
-                for key, (idx, typ) in self.idx.items()] +
-                ['{k}: {v}'.format(k=k, v=v) for k, v in self.tensors.items()]
-            )
-        )
+        lhs = [
+            '{k}: {v}'.format(k=key, v=self.arrays[typ][idx])
+            for key, (idx, typ) in self.idx.items()
+        ]
+        rhs = ['{k}: {v}'.format(k=k, v=v) for k, v in self.tensors.items()]
+        return '{{{}}}'.format(', '.join(lhs + rhs))
 
     def __repr__(self):
         """Returns the object type and memory location with the mapping."""

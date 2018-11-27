@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -10,6 +12,7 @@ from parlai.core.teachers import DialogTeacher
 
 import copy
 
+
 class RepeatTeacher(DialogTeacher):
     def __init__(self, opt, shared=None):
         opt = copy.deepcopy(opt)
@@ -21,3 +24,9 @@ class RepeatTeacher(DialogTeacher):
     def setup_data(self, unused_path):
         for i in range(self.data_length):
             yield ((str(i), [str(i)]), True)
+
+    def num_examples(self):
+        return self.data_length
+
+    def num_episodes(self):
+        return self.data_length

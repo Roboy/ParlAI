@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -8,6 +10,7 @@
 
 from parlai.core.worlds import World
 
+
 class MessengerBotChatTaskWorld(World):
     """Example one person world that talks to a provided agent (bot)."""
 
@@ -16,7 +19,7 @@ class MessengerBotChatTaskWorld(World):
     def __init__(self, opt, agent, bot):
         self.agent = agent
         self.episodeDone = False
-        self.model = bot 
+        self.model = bot
 
     @staticmethod
     def run(messenger_manager, opt, agents, task_id):

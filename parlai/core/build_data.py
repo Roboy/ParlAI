@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -34,6 +36,7 @@ def built(path, version_string=None):
     else:
         return os.path.isfile(os.path.join(path, '.built'))
 
+
 def mark_done(path, version_string=None):
     """Marks the path as done by adding a '.built' file with the current
     timestamp plus a version description string if specified.
@@ -42,6 +45,7 @@ def mark_done(path, version_string=None):
         write.write(str(datetime.datetime.today()))
         if version_string:
             write.write('\n' + version_string)
+
 
 def download(url, path, fname, redownload=False):
     """Downloads file using `requests`. If ``redownload`` is set to false, then
@@ -68,7 +72,7 @@ def download(url, path, fname, redownload=False):
         with requests.Session() as session:
             try:
                 header = {'Range': 'bytes=%d-' % resume_pos,
-                        'Accept-Encoding': 'identity'} if resume else {}
+                          'Accept-Encoding': 'identity'} if resume else {}
                 response = session.get(url, stream=True, timeout=5, headers=header)
 
                 # negative reply could be 'none' or just missing
@@ -95,7 +99,8 @@ def download(url, path, fname, redownload=False):
                     break
             except requests.exceptions.ConnectionError:
                 retry -= 1
-                print(''.join([' '] * 60), end='\r')  # TODO Better way to clean progress bar?
+                # TODO Better way to clean progress bar?
+                print(''.join([' '] * 60), end='\r')
                 if retry >= 0:
                     print('Connection error, retrying. (%d retries left)' % retry)
                     time.sleep(exp_backoff[retry])
@@ -119,7 +124,9 @@ def download(url, path, fname, redownload=False):
 
 def make_dir(path):
     """Makes the directory and any nonexistent parent directories."""
-    os.makedirs(path, exist_ok=True)
+    # the current working directory is a fine path
+    if path != '':
+        os.makedirs(path, exist_ok=True)
 
 
 def move(path1, path2):
@@ -131,6 +138,7 @@ def remove_dir(path):
     """Removes the given directory, if it exists."""
     shutil.rmtree(path, ignore_errors=True)
 
+
 def untar(path, fname, deleteTar=True):
     """Unpacks the given archive file to the same directory, then (by default)
     deletes the archive file.
@@ -141,15 +149,17 @@ def untar(path, fname, deleteTar=True):
     if deleteTar:
         os.remove(fullpath)
 
+
 def cat(file1, file2, outfile, deleteFiles=True):
     with open(outfile, 'wb') as wfd:
         for f in [file1, file2]:
-            with open(f,'rb') as fd:
-                shutil.copyfileobj(fd, wfd, 1024*1024*10)
-                #10MB per writing chunk to avoid reading big file into memory.
+            with open(f, 'rb') as fd:
+                shutil.copyfileobj(fd, wfd, 1024 * 1024 * 10)
+                # 10MB per writing chunk to avoid reading big file into memory.
     if deleteFiles:
         os.remove(file1)
         os.remove(file2)
+
 
 def _get_confirm_token(response):
     for key, value in response.cookies.items():
@@ -178,7 +188,9 @@ def download_from_google_drive(gd_id, destination):
                     f.write(chunk)
         response.close()
 
-def download_models(opt, fnames, model_folder, version='v1.0', path='aws', use_model_type=False):
+
+def download_models(opt, fnames, model_folder, version='v1.0', path='aws',
+                    use_model_type=False):
     """Download models into the ParlAI model zoo from a url.
        fnames -- list of filenames to download
        model_folder -- models will be downloaded into models/model_folder/model_type
@@ -203,10 +215,11 @@ def download_models(opt, fnames, model_folder, version='v1.0', path='aws', use_m
         # Download the data.
         for fname in fnames:
             if path == 'aws':
+                url = 'http://parl.ai/downloads/_models/'
+                url += model_folder + '/'
                 if use_model_type:
-                    url = 'http://parl.ai/downloads/_models/' + os.path.join(model_folder, model_type, fname)
-                else:
-                    url = 'http://parl.ai/downloads/_models/' + os.path.join(model_folder, fname)
+                    url += model_type + '/'
+                url += fname
             else:
                 url = path + '/' + fname
             download(url, dpath, fname)
@@ -214,6 +227,7 @@ def download_models(opt, fnames, model_folder, version='v1.0', path='aws', use_m
                 untar(dpath, fname)
         # Mark the data as built.
         mark_done(dpath, version)
+
 
 def modelzoo_path(datapath, path):
     """If path starts with 'models', then we remap it to the model zoo path

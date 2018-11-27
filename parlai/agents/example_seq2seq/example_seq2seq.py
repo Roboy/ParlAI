@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -233,7 +235,7 @@ class ExampleSeq2seqAgent(TorchAgent):
         self.update_params()
 
         _max_score, predictions = decoder_output.max(2)
-        return Output(self.v2t(predictions), None)
+        return Output(self.v2t(predictions))
 
     def eval_step(self, batch):
         """Generate a response to the input tokens.
@@ -279,4 +281,4 @@ class ExampleSeq2seqAgent(TorchAgent):
                 # no need to generate any more
                 break
         predictions = torch.cat(predictions, 1)
-        return Output(self.v2t(predictions), None)
+        return Output(self.v2t(predictions))

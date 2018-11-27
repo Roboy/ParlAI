@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -78,16 +80,20 @@ def truncate(data, row, col):
         col = col[:MAX_SZ]
     return data, row, col
 
+
 def sparse_nonzero(sparse_t):
     return sparse_t.coalesce()._indices()
 
+
 def sparse_sum(sparse_t):
     return sparse_t._values().sum()
+
 
 def sparse_log1p(sparse_t):
     t = sparse_t.coalesce()
     t._values().log1p_()
     return t
+
 
 def live_count_matrix(args, cands):
     global PROCESS_TOK
@@ -106,6 +112,7 @@ def live_count_matrix(args, cands):
     )
     count_matrix.sum_duplicates()
     return count_matrix
+
 
 def live_count_matrix_t(args, cands):
     global PROCESS_TOK
@@ -261,6 +268,7 @@ def get_tfidf_matrix_t(cnts):
     tfidft = tft
     return tfidft
 
+
 def get_tfidf_matrix(cnts):
     """Convert the word count matrix into tfidf one.
 
@@ -278,10 +286,12 @@ def get_tfidf_matrix(cnts):
 
     return tfidfs
 
+
 def get_doc_freqs_t(cnts):
     """Return word --> # of docs it appears in (torch version)."""
     return torch.histc(cnts._indices()[0].float(), bins=cnts.size(0),
                        min=0, max=cnts.size(0))
+
 
 def get_doc_freqs(cnts):
     """Return word --> # of docs it appears in."""

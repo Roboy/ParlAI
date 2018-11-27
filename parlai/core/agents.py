@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -11,8 +13,8 @@
     returns a dict in response.
 
     ``Teacher(Agent)``
-    also implements the ``report()`` method for returning metrics. All ParlAI tasks implement
-    the ``Teacher`` class.
+    also implements the ``report()`` method for returning metrics. All ParlAI
+    tasks implement the ``Teacher`` class.
 
     ``MultiTaskTeacher(Teacher)``
     creates a set of teachers based on a task string passed to the ``Teacher``,
@@ -41,6 +43,7 @@ from parlai.core.build_data import modelzoo_path
 from .metrics import Metrics, aggregate_metrics
 import copy
 import importlib
+import json
 import pickle
 import random
 import os
@@ -300,8 +303,14 @@ def load_agent_module(opt):
     model_file = opt['model_file']
     optfile = model_file + '.opt'
     if os.path.isfile(optfile):
-        with open(optfile, 'rb') as handle:
-            new_opt = pickle.load(handle)
+        try:
+            # try json first
+            with open(optfile, 'r') as handle:
+                new_opt = json.load(handle)
+        except UnicodeDecodeError:
+            # oops it's pickled
+            with open(optfile, 'rb') as handle:
+                new_opt = pickle.load(handle)
         if 'batchindex' in new_opt:
             # This saved variable can cause trouble if we switch to BS=1 at test time
             del new_opt['batchindex']
@@ -310,8 +319,7 @@ def load_agent_module(opt):
             for k, v in opt['override'].items():
                 if str(v) != str(new_opt.get(k, None)):
                     print("[ warning: overriding opt['{}'] to {} ("
-                          "previously: {} )]".format(
-                            k, v, new_opt.get(k, None)))
+                          "previously: {} )]".format(k, v, new_opt.get(k, None)))
                 new_opt[k] = v
         # add model arguments to new_opt if they aren't in new_opt already
         for k, v in opt.items():
@@ -319,25 +327,50 @@ def load_agent_module(opt):
                 new_opt[k] = v
         new_opt['model_file'] = model_file
         model_class = get_agent_module(new_opt['model'])
+
+        # check for model version
+        if hasattr(model_class, 'model_version'):
+            curr_version = new_opt.get('model_version', 0)
+            if curr_version != model_class.model_version():
+                model = new_opt['model']
+                m = ('It looks like you are trying to load an older version of'
+                     ' the selected model. Change your model argument to use '
+                     'the old version from parlai/agents/legacy_agents: for '
+                     'example: `-m legacy:{m}:{v}` or '
+                     '`--model parlai.agents.legacy_agents.{m}.{m}_v{v}:{c}`')
+                if '.' not in model:
+                    # give specific error message if it's easy
+                    raise RuntimeError(m.format(m=model, v=curr_version,
+                                                c=model_class.__name__))
+                else:
+                    # otherwise generic one
+                    raise RuntimeError(m.format(m='modelname', v=curr_version,
+                                                c='ModelAgent'))
         return model_class(new_opt)
     else:
         return None
 
 
 def get_agent_module(dir_name):
-    """Return the module for an agent specified by `--model`.
+    """Return the module for an agent specified by ``--model``.
 
     Can be formatted in several different ways:
-    - full: -m parlai.agents.seq2seq.seq2seq:Seq2seqAgent
-    - shorthand: -m seq2seq, which will check both paths
-        parlai.agents.seq2seq.seq2seq:Seq2seqAgent and
-        parlai.agents.seq2seq.agents:Seq2seqAgent
-    - half-shorthand: -m seq2seq/variant, which will check the path
-        parlai.agents.seq2seq.variant:VariantAgent
+
+    * full: `-m parlai.agents.seq2seq.seq2seq:Seq2seqAgent`
+    * shorthand: -m seq2seq, which will check both paths
+      ``parlai.agents.seq2seq.seq2seq:Seq2seqAgent`` and
+      ``parlai.agents.seq2seq.agents:Seq2seqAgent``
+    * half-shorthand: ``-m seq2seq/variant``, which will check the path
+      `parlai.agents.seq2seq.variant:VariantAgent`
+    * legacy models: ``-m legacy:seq2seq:0``, which will look for the deprecated
+      model at ``parlai.agents.legacy_agents.seq2seq.seq2seq_v0:Seq2seqAgent``
 
     The base path to search when using shorthand formats can be changed from
     "parlai" to "parlai_internal" by prepending "internal:" to the path, e.g.
     "internal:seq2seq".
+
+    To use legacy agent versions, you can prepend "legacy:" to model arguments,
+    e.g. "legacy:seq2seq:0" will translate to ``legacy_agents/seq2seq/seq2seq_v0``.
 
     :param dir_name: path to model class in one of the above formats.
     """
@@ -348,7 +381,20 @@ def get_agent_module(dir_name):
         # this will follow the same paths but look in parlai_internal instead
         repo = 'parlai_internal'
         dir_name = dir_name[9:]
-    if ':' in dir_name:
+
+    if dir_name.startswith('legacy:'):
+        # e.g. -m legacy:seq2seq:0
+        # will check legacy_agents.seq2seq.seq2seq_v0:Seq2seqAgent
+        s = dir_name.split(':')
+        if len(s) != 3:
+            raise RuntimeError('legacy paths should follow pattern '
+                               'legacy:model:version; you used {}'
+                               ''.format(dir_name))
+        model_name = s[1]  # seq2seq
+        module_name = 'parlai.agents.legacy_agents.{m}.{m}_v{v}'.format(
+            m=model_name, v=s[2])
+        class_name = name_to_agent_class(model_name)
+    elif ':' in dir_name:
         # e.g. -m "parlai.agents.seq2seq.seq2seq:Seq2seqAgent"
         s = dir_name.split(':')
         module_name = s[0]
@@ -384,7 +430,7 @@ def create_agent(opt, requireModelExists=False):
     the model from that location instead. This avoids having to specify all the other
     options necessary to set up the model including its name as they are all loaded from
     the options file if it exists (the file opt['model_file'] + '.opt' must exist and
-    contain a pickled dict containing the model's options).
+    contain a pickled or json dict containing the model's options).
     """
     if opt.get('datapath', None) is None:
         # add datapath, it is missing
@@ -456,18 +502,19 @@ def get_task_module(taskname):
     """Get the module of the task agent specified by `--task`.
 
     Can be formatted in several different ways:
-    - full: -t parlai.tasks.babi.agents:DefaultTeacher
-    - shorthand: -t babi, which will check
-        parlai.tasks.babi.agents:DefaultTeacher
-    - shorthand specific: -t babi:task10k, which will check
-        parlai.tasks.babi.agents:Task10kTeacher
+
+    * full: ``-t parlai.tasks.babi.agents:DefaultTeacher``
+    * shorthand: ``-t babi``, which will check
+        ``parlai.tasks.babi.agents:DefaultTeacher``
+    * shorthand specific: ``-t babi:task10k``, which will check
+        ``parlai.tasks.babi.agents:Task10kTeacher``
 
     The base path to search when using shorthand formats can be changed from
     "parlai" to "parlai_internal" by prepending "internal:" to the path, e.g.
     "internal:babi".
 
     Options can be sent to the teacher by adding an additional colon,
-    for example "-t babi:task10k:1" directs the babi Task10kTeacher to use
+    for example ``-t babi:task10k:1`` directs the babi Task10kTeacher to use
     task number 1.
 
     :param taskname: path to task class in one of the above formats.
@@ -487,7 +534,7 @@ def get_task_module(taskname):
     else:
         task = sp[0].lower()
         module_name = "%s.tasks.%s.agents" % (repo, task)
-    if len(sp) > 1:
+    if len(sp) > 1 and '=' not in sp[1]:
         sp[1] = sp[1][0].upper() + sp[1][1:]
         teacher = sp[1]
         if '.' not in sp[0] and 'Teacher' not in teacher:
@@ -504,16 +551,33 @@ def get_task_module(taskname):
     teacher_class = getattr(my_module, teacher)
     return teacher_class
 
-
+def add_task_flags_to_agent_opt(agent, opt, flags):
+    """Allows to insert task flags in the task name itself, they are
+    put inside the opt before the task is created.
+    """
+    fl = flags.split(':')
+    task = []
+    for f in fl:
+        if '=' in f:
+            one_flag = f.split('=')
+            opt[one_flag[0]] = one_flag[1]
+        else:
+            task.append(f)
+    opt['task'] = ':'.join(task)
+            
+            
 def create_task_agent_from_taskname(opt):
     """Create task agent(s) assuming the input ``task_dir:teacher_class``.
 
     e.g. def_string is a shorthand path like ``babi:Task1k:1`` or ``#babi``
     or a complete path like ``parlai.tasks.babi.agents:Task1kTeacher:1``,
     which essentially performs ``from parlai.tasks.babi import Task1kTeacher``
-    with the parameter ``1`` in ``opt['task']`` to be used by the class ``Task1kTeacher``.
+    with the parameter ``1`` in ``opt['task']`` to be used by the class
+    ``Task1kTeacher``.
     """
-    if not (opt.get('task') or opt.get('pytorch_teacher_task') or opt.get('pytorch_teacher_dataset')):
+    if not (opt.get('task') or
+            opt.get('pytorch_teacher_task') or
+            opt.get('pytorch_teacher_dataset')):
         raise RuntimeError('No task specified. Please select a task with ' +
                            '--task {task_name}.')
     if not opt.get('task'):
@@ -521,6 +585,7 @@ def create_task_agent_from_taskname(opt):
     if ',' not in opt['task']:
         # Single task
         teacher_class = get_task_module(opt['task'])
+        add_task_flags_to_agent_opt(teacher_class, opt, opt['task'])
         task_agents = teacher_class(opt)
         if type(task_agents) != list:
             task_agents = [task_agents]

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -8,6 +10,7 @@
 import parlai.core.build_data as build_data
 import codecs
 import os
+
 
 def create_fb_format(lines_file, convo_file, outpath):
     print('[building fbformat]')
@@ -27,7 +30,7 @@ def create_fb_format(lines_file, convo_file, outpath):
             for line in f:
                 l = line.split(' ')
                 convo = ' '.join(l[6:]).strip('\n').strip('[').strip(']')
-                c = convo.replace("'",'').replace(' ','').split(',')
+                c = convo.replace("'", '').replace(' ', '').split(',')
 
                 # forward conversation
                 s = ''
@@ -36,7 +39,7 @@ def create_fb_format(lines_file, convo_file, outpath):
                     index += 1
                     s += str(index) + ' ' + lines[c[i]]
                     if len(c) > i + 1:
-                        s += '\t' + lines[c[i+1]]
+                        s += '\t' + lines[c[i + 1]]
                     s += '\n'
 
                 cnt = cnt + 1

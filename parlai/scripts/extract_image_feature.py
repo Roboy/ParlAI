@@ -1,14 +1,25 @@
+#!/usr/bin/env python3
+
+# Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree. An additional grant
 # of patent rights can be found in the PATENTS file in the same directory.
+
 """Basic example which iterates through the tasks specified and load/extract
 the image features.
 
-For example, to extract the image feature of COCO images:
-`python examples/extract_image_feature.py -t vqa_v1 -im resnet152`.
+For more options, check ``parlai.core.image_featurizers``
 
-For more options, check `parlai.core.image_featurizers`
+Examples
+--------
+
+To extract the image feature of COCO images:
+
+.. code-block:: shell
+
+  python examples/extract_image_feature.py -t vqa_v1 -im resnet152
+
 """
 import importlib
 import h5py
@@ -25,7 +36,7 @@ from parlai.core.utils import ProgressLogger
 
 def setup_args(parser=None):
     if parser is None:
-        parser = ParlaiParser(True, False)
+        parser = ParlaiParser(True, False, 'Load/extract image features')
     arg_group = parser.add_argument_group('Image Extraction')
     arg_group.add_argument('--dataset', type=str, default=None,
                            help='Pytorch Dataset; if specified, will save \

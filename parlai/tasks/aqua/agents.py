@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -56,6 +58,7 @@ def setup_data(path):
             # Ask for a rationale now
             rationale = [question[AQUA_RATIONALE_KEY]]
             yield (RATIONALE_QUESTION_TEXT, rationale, None, rationale), False
+
 
 class DefaultTeacher(DialogTeacher):
     def __init__(self, opt, shared=None):

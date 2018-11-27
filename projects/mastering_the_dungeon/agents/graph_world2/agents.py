@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 ##
 ## Copyright (c) 2017-present, Facebook, Inc.
 ## All rights reserved.
@@ -13,9 +15,8 @@ from .models import ObjectChecklistModel, Seq2SeqModel
 import numpy as np
 from torch.autograd import Variable
 import torch
-import random
 from copy import deepcopy
-from projects.mastering_the_dungeon.tasks.graph_world2.graph import DEFAULT_ROOMS, DEFAULT_OBJECTS, DEFAULT_CONTAINERS, DEFAULT_AGENTS, DEDUP_OBJECTS, DEDUP_PROPS
+from projects.mastering_the_dungeon.tasks.graph_world2.graph import DEFAULT_ROOMS, DEFAULT_CONTAINERS, DEFAULT_AGENTS, DEDUP_OBJECTS, DEDUP_PROPS
 
 nlp = spacy.load('en')
 

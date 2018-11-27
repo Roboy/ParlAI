@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -26,8 +28,7 @@ except ImportError:
 import bisect
 import os
 import numpy as np
-import copy
-import pickle
+import json
 import random
 
 from parlai.core.agents import Agent
@@ -58,8 +59,8 @@ class SimpleDictionaryAgent(DictionaryAgent):
         super().__init__(*args, **kwargs)
 
         # Index words in embedding file
-        if (self.opt['pretrained_words'] and self.opt.get('embedding_file')
-                and not self.opt.get('trained', False)):
+        if (self.opt['pretrained_words'] and self.opt.get('embedding_file') and
+                not self.opt.get('trained', False)):
             print('[ Indexing words with embeddings... ]')
             self.embedding_words = set()
             self.opt['embedding_file'] = modelzoo_path(
@@ -78,8 +79,7 @@ class SimpleDictionaryAgent(DictionaryAgent):
         Only adds words contained in self.embedding_words, if not None.
         """
         for token in tokens:
-            if (self.embedding_words is not None and
-                token not in self.embedding_words):
+            if (self.embedding_words is not None and token not in self.embedding_words):
                 continue
             self.freq[token] += 1
             if token not in self.tok2ind:
@@ -150,8 +150,7 @@ class DrqaAgent(Agent):
 
     def _init_from_saved(self, fname):
         print('[ Loading model %s ]' % fname)
-        saved_params = torch.load(fname,
-            map_location=lambda storage, loc: storage)
+        saved_params = torch.load(fname, map_location=lambda storage, loc: storage)
         if 'word_dict' in saved_params:
             # for compatibility with old saves
             self.word_dict.copy_dict(saved_params['word_dict'])
@@ -198,7 +197,6 @@ class DrqaAgent(Agent):
             reply['text'] = prediction[0]
             reply['text_candidates'] = [prediction[0]]
             reply['candidate_scores'] = [score[0]]
-
 
         reply['metrics'] = {'train_loss': self.model.train_loss.avg}
         return reply
@@ -262,8 +260,8 @@ class DrqaAgent(Agent):
             self.opt['trained'] = True
             self.model.save(fname)
             # save opt file
-            with open(fname + ".opt", 'wb') as handle:
-                pickle.dump(self.opt, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            with open(fname + '.opt', 'w') as handle:
+                json.dump(self.opt, handle)
 
     # --------------------------------------------------------------------------
     # Helper functions.
@@ -288,7 +286,9 @@ class DrqaAgent(Agent):
         paragraphs, question = fields[:-1], fields[-1]
 
         if len(fields) > 2 and self.opt.get('subsample_docs', 0) > 0 and 'labels' in ex:
-            paragraphs = self. _subsample_doc(paragraphs, ex['labels'], self.opt.get('subsample_docs', 0))
+            paragraphs = self._subsample_doc(
+                paragraphs, ex['labels'], self.opt.get('subsample_docs', 0)
+            )
 
         document = ' '.join(paragraphs)
         inputs['document'], doc_spans = self.word_dict.span_tokenize(document)

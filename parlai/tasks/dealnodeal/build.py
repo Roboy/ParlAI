@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -6,6 +8,7 @@
 
 import parlai.core.build_data as build_data
 import os
+
 
 def build(opt):
     dpath = os.path.join(opt['datapath'], 'negotiation')

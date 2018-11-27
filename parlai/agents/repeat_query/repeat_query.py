@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -6,8 +8,6 @@
 """Simple agent which repeats back the last thing said to it.
 Useful as a baseline for metrics like F1.
 """
-
-import random
 
 from parlai.core.agents import Agent
 

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -223,13 +225,13 @@ class MessengerChatTaskWorld(World):
             a = self.agents[x].act()
             if a is not None:
                 if '[DONE]' in a['text']:
-                    self.agents[x-1].observe({
+                    self.agents[x - 1].observe({
                         'id': 'World',
                         'text': 'The other agent has ended the chat.'
                     })
                     self.episodeDone = True
                 else:
-                    self.agents[x-1].observe(a)
+                    self.agents[x - 1].observe(a)
 
     def episode_done(self):
         return self.episodeDone

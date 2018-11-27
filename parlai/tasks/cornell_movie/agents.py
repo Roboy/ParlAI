@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -9,6 +11,7 @@ from .build import build
 
 import copy
 import os
+
 
 def _path(opt, filtered):
     # Build the data if it doesn't exist.
@@ -24,6 +27,7 @@ class DefaultTeacher(FbDialogTeacher):
         opt['datafile'] = _path(opt, '')
         opt['cands_datafile'] = opt['datafile']
         super().__init__(opt, shared)
+
 
 class DoubleTeacher(DefaultTeacher):
     """This version creates text-label pairs from the perspective of both
@@ -55,7 +59,7 @@ class DoubleTeacher(DefaultTeacher):
                 new_list.append(('', [entries[0][0]]))
 
                 # add all ( y_t => x_(t+1) ) pairs
-                new_list.extend([(entries[i][1][0], [entries[i+1][0]])
+                new_list.extend([(entries[i][1][0], [entries[i + 1][0]])
                                  for i in range(len(entries) - 1)])
                 if len(entries[-1]) > 1 and entries[-1][1]:
                     # add y_n => '', if last y avail

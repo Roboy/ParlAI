@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (c) 2017-present, Facebook, Inc.
 # All rights reserved.
 # This source code is licensed under the BSD-style license found in the
@@ -11,7 +13,7 @@ import torchtext.vocab as vocab
 
 
 def download(datapath):
-    embs = vocab.Vectors(
+    vocab.Vectors(
         name='crawl-300d-2M.vec',
         url='https://s3-us-west-1.amazonaws.com/fasttext-vectors/crawl-300d-2M.vec.zip',
         cache=datapath + '/models/fasttext_cc_vectors'
