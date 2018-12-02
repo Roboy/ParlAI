@@ -2,3 +2,4 @@ include parlai/mturk/core/server_legacy/html/*
 include parlai/mturk/core/server_legacy/server.js
 include parlai/mturk/core/server_legacy/package.json
 include parlai/mturk/core/react_server/*
+include roboy_parlai/projects/personachat/stopwords.txt
